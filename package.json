@@ -22,6 +22,8 @@
   },
   "homepage": "https://github.com/gurelbs/bankAPI#readme",
   "dependencies": {
-    "express": "4.17.1"
+    "express": "4.17.1",
+    "faker": "5.5.3",
+    "short-uuid": "4.1.0"
   }
 }
