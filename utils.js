@@ -3,6 +3,7 @@ const db = 'database.json'
 const faker = require('faker');
 const uuid = require('short-uuid');
 const { parse } = require('path');
+const { json } = require('express');
 const createID = uuid(); // Defaults to flickrBase58
 
 const createNewJSON = () => {
@@ -82,90 +83,104 @@ const updateCredit = (id, passport, creditAmount) => {
 const withdrawFromUser = (userID,userPassport, withdrawAmount) => {
     let userIndex = findUserIndex(userID)
     let userData = userDetails(userID)
-    const { id, passport, cash, credit } = userData
     let data = getData()
-    if (userIndex > -1 && id === userID && passport === userPassport ){
-        if (withdrawAmount <= cash){
-            console.log('update cash. credit should not update');
+    let endMsg = ''
+    const { id, passport, cash, credit } = userData
+    let creditNum = parseInt(credit)
+    const userExist = userIndex > -1 && id === userID && passport === userPassport
+    if (userExist){
+        if (cash > 0 && withdrawAmount <= cash){ // handle just with cash
             let userUpdated = {
                 ...userData,
                 "cash": cash - withdrawAmount,
             }
             data.splice(userIndex,1,userUpdated)
             fs.writeFileSync(db,JSON.stringify(data))
-        } else {
-            if (withdrawAmount <= (cash + parseInt(credit)) && withdrawAmount > cash){
+            endMsg = `hey, ${userData.name}, you just withdraw ${withdrawAmount}$ from your account!`
+        } else if (cash >= 0 && withdrawAmount <= (cash + creditNum)){ 
+            let subFromCredit = withdrawAmount - cash;
+            if (subFromCredit <= creditNum){
                 let userUpdated = {
                     ...userData,
-                    "cash": 0,
-                    "credit": parseInt(credit) - (withdrawAmount - cash)
+                    "cash": cash - withdrawAmount,
+                    "credit": creditNum - subFromCredit
                 }
                 data.splice(userIndex,1,userUpdated)
                 fs.writeFileSync(db,JSON.stringify(data))
+                endMsg = `hey, ${userData.name}, you just withdraw ${withdrawAmount}$ from your account!`
             } else {
-                return 'more then user can..'
+                endMsg = 'more then user can..'
             }
+        } else if (cash <= 0 && withdrawAmount <= creditNum){
+            let userUpdated = {
+                ...userData,
+                "cash": cash - withdrawAmount,
+                "credit": creditNum - withdrawAmount
+            } 
+            data.splice(userIndex,1,userUpdated)
+            fs.writeFileSync(db,JSON.stringify(data))
+            endMsg = `hey, ${userData.name}, you just withdraw ${withdrawAmount}$ from your account!`
+        } else {
+            endMsg =  'more then user have..'
         }
     } else {
-        return 'user Not Found...'
+        endMsg = 'not valid...'
     }
+    return endMsg
 }
 
-const withdrawP2P = (fromUser,toUser,maxWithdraw, amount) => {
+const withdrawP2P = (fromUser,toUser, amount) => {
     const data = getData()
     const fromUserIndex = findUserIndex(fromUser.id)
     const toUserIndex = findUserIndex(toUser.id)
-    const fromUserData = userDetails(fromUser.id)
-    const toUserData = userDetails(toUser.id)
-    const checkIfValid = ( amount <= maxWithdraw 
-        && amount > 0
-        && fromUserData.id !== toUserData.id
-        && fromUserIndex !== toUserIndex ) ? true : false;
-        
+    const { cash, credit, name} = fromUser
     let endMsg = '';
-
-    if (checkIfValid) {
-        if (amount <= fromUserData.cash){
+    if (amount <= cash && cash > 0){
+        let updatedFromUser = {
+            ...fromUser,
+            "cash": cash - amount
+        }
+        let updatedToUser = {
+            ...toUser,
+            "cash": toUser.cash + amount
+        }
+        data.splice(fromUserIndex,1,updatedFromUser)
+        data.splice(toUserIndex,1,updatedToUser)
+        fs.writeFileSync(db,JSON.stringify(data))
+        endMsg = `transfer successful! deposite ${amount}$ from ${name} to ${updatedToUser.name}`
+    } else if (cash > 0 && amount > cash && amount <= (cash + credit)){
+        const creditAmount = credit - (amount - cash) 
+        const isCreditLeft = creditAmount > 0 ? true : false
+        if (isCreditLeft){
             let updatedFromUser = {
-                ...fromUserData,
-                "cash": fromUserData.cash - amount
+                ...fromUser,
+                "cash": cash - amount,
+                "credit": creditAmount
             }
             let updatedToUser = {
-                ...toUserData,
-                "cash": toUserData.cash + amount
+                ...toUser,
+                "cash": toUser.cash + amount
             }
             data.splice(fromUserIndex,1,updatedFromUser)
             data.splice(toUserIndex,1,updatedToUser)
             fs.writeFileSync(db,JSON.stringify(data))
-            endMsg = `transfer successful! deposite ${amount}$ from ${updatedFromUser.name} to ${updatedToUser.name}`
-        } else if (amount > fromUserData.cash && (amount < fromUserData.cash + fromUserData.credit) ){
-            const creditAmount = (amount - fromUserData.cash) + fromUserData.credit 
-            const isCreditLeft = creditAmount < 0 ? false : true
-            if (isCreditLeft){
-                let updatedFromUser = {
-                    ...fromUserData,
-                    "cash": 0,
-                    "credit": creditAmount
-                }
-                let updatedToUser = {
-                    ...toUserData,
-                    "cash": toUserData.cash + amount
-                }
-                data.splice(fromUserIndex,1,updatedFromUser)
-                data.splice(toUserIndex,1,updatedToUser)
-                fs.writeFileSync(db,JSON.stringify(data))
-                endMsg = `transfer successful! deposite ${amount}$ from ${updatedFromUser.name} to ${updatedToUser.name}`
-            } else {
-                endMsg = `${fromUserData.name} don't have enogth money...`
-            }
-        } else {
-            endMsg = 'is not valid...'
+            endMsg = `transfer successful! deposite ${amount}$ from ${name} to ${updatedToUser.name}`
         }
-    } else {
-        endMsg = 'is not valid...'
-        // endMsg = `${fromUser.name} don't have enogth money`
+    } else if (cash <= 0 && amount <= credit){
+        let updatedFromUser = {
+            ...fromUser,
+            "cash": cash - amount,
+            "credit": credit - amount
+        }
+        let updatedToUser = {
+            ...toUser,
+            "cash": toUser.cash + amount
+        }
+        data.splice(fromUserIndex,1,updatedFromUser)
+        data.splice(toUserIndex,1,updatedToUser)
+        fs.writeFileSync(db,JSON.stringify(data))
+        endMsg = `transfer successful! deposite ${amount}$ from ${name} to ${updatedToUser.name}`
     }
-    console.log('console.log: ' + endMsg);
     return endMsg
 }
 

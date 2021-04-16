@@ -133,15 +133,19 @@ app.put('/api/users/:id/withdraw', (req, res) => {
     const { id } = req.params
     const user = userDetails(id)
     let { cash, credit, passport } = user
+    const maxWithdraw = cash + credit
     cash = parseInt(cash)
     credit = parseInt(credit)
-    const maxWithdraw = cash + credit
     amountNumber = parseInt(amount)
-    if (amountNumber <= maxWithdraw && amountNumber > 0){
+    let isValid = 
+        cash > 0 && amountNumber <= cash ||
+        cash >= 0 && amountNumber <= (cash + credit) ||
+        cash <= 0 && amountNumber <= credit
+    if (credit >= 0 && amountNumber > 0 && isValid){
         try {
-            withdrawFromUser(id,passport,amountNumber)
+            // withdrawFromUser(id,passport,amountNumber)
             res.json({
-                "nice!": 'withdraw complete successfully!',
+                "message": `${withdrawFromUser(id,passport,amountNumber)}`,
                 "what next?": `go to /api/users/${id} to see the user details..`
             })
         } catch (e) {
@@ -163,24 +167,30 @@ app.put('/api/users/:id/P2Pwithdraw', (req, res) => {
     const { to, amount } = req.query;
     const { id } = req.params;
     let fromUserData = userDetails(id)
+    const { cash, credit } = fromUserData
     let toUserData = userDetails(to)
-    // console.log(fromUserData,toUserData);
+    const fromUserIndex = findUserIndex(id)
+    const toUserIndex = findUserIndex(to)
     const amountNum = parseInt(amount)
-    const maxWithdraw = fromUserData.cash + fromUserData.credit
-    if (amountNum <= maxWithdraw){
+    const validCases =  (amountNum <= cash && cash > 0) 
+        || (cash >= 0 && amountNum > cash && amountNum <= (cash + credit)) 
+        || (cash <= 0 && amountNum <= credit) 
+    const IsValid = (amountNum > 0)
+        && (id !== to)
+        && (fromUserIndex !== toUserIndex)
+        console.log(IsValid && validCases,IsValid ,validCases);
+    if (IsValid && validCases){
         try {
-            withdrawP2P(fromUserData,toUserData,maxWithdraw, amountNum)
             res.json({
-                "message": `${withdrawP2P(fromUserData,toUserData,maxWithdraw, amountNum)}`,
-                // "nice!": `withdraw from ${id} to ${to} complete successfully!`,
-                // "what next?": `go to /api/users/${id} to see the user details..`
+                "message": `${withdrawP2P(fromUserData,toUserData, amountNum)}`,
+                "what next?": `go to /api/users/${to} to see the user details..`
             })
         } catch (e) {
             res.json(`error: ${e.message}`)
         }
     } else {
         try {
-            return amount > maxWithdraw
+            return amount >= amountNum
             ? res.json(`${fromUserData.name} dont have enough money`)
             : typeof amount !== 'number'
             ? res.json(`try again with positive number`)
