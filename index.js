@@ -9,8 +9,11 @@ const {
     checkCreateNumber, 
     createUser,
     userDetails,
-    findUserID,
-    depositCash
+    findUserIndex,
+    depositCash,
+    updateCredit,
+    withdrawFromUser,
+    withdrawP2P,
 } = require('./utils.js')
 
 app.get('/api', (req, res) => {
@@ -35,7 +38,7 @@ app.get(`/api/users`, (req, res) => {
 app.get(`/api/users/:id`, (req, res) => {
     const { id } = req.params
     try {
-        let isExist = findUserID(id) > -1
+        let isExist = findUserIndex(id) > -1
         if (isExist) {
             res.json(userDetails(id))
         } else {
@@ -72,18 +75,119 @@ app.get(`/api/create/:number`, (req, res) => {
     }
 })
 
-// depositing cash to users/:id
+// depositing cash to users/:id or update credit
 
 app.put('/api/users/:id', (req, res) => {
+    const cash = req.query.cash
+    const credit = req.query.credit
+    const querys = Object.keys(req.query)
     const { id } = req.params
-    const cashAmount = req.query.amount
     const user = userDetails(id)
     const { name, passport } = user
-    try {
-        depositCash(id,name,passport,parseInt(cashAmount))
-        res.json(`${cashAmount}$ deposited to ${name}`)
-    } catch (e) {
-        res.json(`error: ${e.message}`)
+    let checkIfIncludes = querys.includes('cash') || querys.includes('credit')
+    let notDuplicated = typeof req.query.cash !== 'object' && typeof req.query.credit !== 'object' 
+    let cashIsMoreThen0 = parseInt(cash) > 0
+    let creditIsVaild = parseInt(credit) >= 0;
+    if (checkIfIncludes && notDuplicated && (cashIsMoreThen0 || creditIsVaild)) {
+        if (cash && !credit && cashIsMoreThen0){
+            try {
+                depositCash(id,passport,cash)
+                res.json({
+                    "nice!": `<h1>${cash}$ deposited to ${name}</h1>`,
+                    "what next?":`go to /api/users/${id}`
+                })
+            } catch (e) {
+                res.json(`error: ${e.message}`)
+            }
+        } else if (credit && !cash && creditIsVaild){
+            try {
+                updateCredit(id, passport, credit)
+                res.json({
+                    "nice!": `<h1>you just updated your client '${name}' credit card to ${credit}$</h1>`,
+                    "what next?":`go to /api/users/${id}`
+                })
+            } catch (e) {
+                res.json(`error: ${e.message}`) 
+            }
+        } else if (cash && credit && cashIsMoreThen0 && creditIsVaild){
+            try {
+                depositCash(id,passport,cash)
+                updateCredit(id, passport, credit)
+                res.json({
+                    "nice!": `<h1>you just updated your client '${name}' credit card to ${credit}$ and he also deposite ${cash}$ to his account</h1>`,
+                    "what next?":`go to /api/users/${id}`
+                })
+            } catch (e) {
+                res.json(`error: ${e.message}`)
+            }
+        } else {
+            res.json('you can`t do that...')
+        }
+    } else {
+        res.json('you can`t do that...')
+    }
+})
+
+app.put('/api/users/:id/withdraw', (req, res) => {
+    const { amount } = req.query
+    const { id } = req.params
+    const user = userDetails(id)
+    let { cash, credit, passport } = user
+    cash = parseInt(cash)
+    credit = parseInt(credit)
+    const maxWithdraw = cash + credit
+    amountNumber = parseInt(amount)
+    if (amountNumber <= maxWithdraw && amountNumber > 0){
+        try {
+            withdrawFromUser(id,passport,amountNumber)
+            res.json({
+                "nice!": 'withdraw complete successfully!',
+                "what next?": `go to /api/users/${id} to see the user details..`
+            })
+        } catch (e) {
+            res.json(`error: ${e.message}`)
+        }
+    } else {
+        try {
+            return ( amountNumber > maxWithdraw
+                ? res.json('you try to Withdraw more then the user have!')
+                : res.json('try again with numbers...')  
+            )  
+        } catch (e) {
+            res.json(`error: ${e.message}`)
+        }
+    }
+})
+
+app.put('/api/users/:id/P2Pwithdraw', (req, res) => {
+    const { to, amount } = req.query;
+    const { id } = req.params;
+    let fromUserData = userDetails(id)
+    let toUserData = userDetails(to)
+    // console.log(fromUserData,toUserData);
+    const amountNum = parseInt(amount)
+    const maxWithdraw = fromUserData.cash + fromUserData.credit
+    if (amountNum <= maxWithdraw){
+        try {
+            withdrawP2P(fromUserData,toUserData,maxWithdraw, amountNum)
+            res.json({
+                "message": `${withdrawP2P(fromUserData,toUserData,maxWithdraw, amountNum)}`,
+                // "nice!": `withdraw from ${id} to ${to} complete successfully!`,
+                // "what next?": `go to /api/users/${id} to see the user details..`
+            })
+        } catch (e) {
+            res.json(`error: ${e.message}`)
+        }
+    } else {
+        try {
+            return amount > maxWithdraw
+            ? res.json(`${fromUserData.name} dont have enough money`)
+            : typeof amount !== 'number'
+            ? res.json(`try again with positive number`)
+            : res.json(`you can't do that...`)
+        } catch (e) {
+            res.json(`error: ${e.message}`)
+        }
     }
 })
 app.use(express.json())

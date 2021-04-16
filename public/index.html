@@ -10,15 +10,85 @@
 </head>
 <body>
     <section class="container">
-        <h1>Wellcome to <code class="name">BankAPI</code></h1>
-        <div>
-            <ul>
-                <li>
-                    create user: <code class="code">/api/create/[number]</code> (positive integer number between 1 - 10)
-                    <pre>exmple: <code>https://bankapi.cf/api/create/5</code></pre>
-                </li>
-            </ul>
-        </div>
+        <header>
+            <div class="mini-cover">
+                <h1>Wellcome to <a href="/"><code class="name">BankAPI</code></a></h1>
+                <h2>nice and simple API, Created by
+                    <a href="https://github.com/gurelbs">Gurel Ben Shabat</a>
+                    Just to learn how API realy work!
+                </h2>
+            </div>
+            <div class="webmap">
+                <h2>Cheatcheet:</h2>
+                <div class="box">
+                    <li><pre>bankAPI.cf</pre></li>
+                    <li><pre>bankAPI.cf/api/create/[number]</pre></li>
+                    <li><pre>bankAPI.cf/api/users</pre></li>
+                    <li><pre>bankAPI.cf/api/users/[id]</pre></li>
+                    <li><pre>bankAPI.cf/api/users/[id]?cash=[number]&credit=[number]</pre></li>
+                    <li><pre>bankAPI.cf/api/users/[id]/withdraw?amount=[number]</pre></li>
+                    <li><pre>bankAPI.cf/api/users/[id]/P2Pwithdraw?amount=[number]?to=[id]</pre></li>
+                </div>
+            </div>
+        </header>
+        <main>
+            <div class="section create-section">
+                <h3>Create:</h3>
+                <ul>
+                    <i class="method">GET</i>
+                    <li>
+                        <code class="code">/api/create/[number]</code> 
+                        (positive integer number between 1 - 100)
+                        <ul>
+                            <li>
+                                <pre>exmple: <code>https://bankapi.cf/api/create/5</code></pre>
+                            </li>
+                            <li>
+                                <pre>exmple: <code>http://localhost:3000/api/create/5</code></pre>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="section show-section">
+                <h3>Show:</h3>
+                <ul>
+                    <i class="method">GET</i>
+                    <li>all users: <code class="code">/api/users</code></li>
+                    <li>user by id: <code class="code">/api/users/[id]</code></li>
+                    <pre>exmple: <code>https://bankapi.cf/users/gww9jL6S64TBAz1SvPtiRX</code></pre>
+                    <pre>exmple: <code>http://localhost:3000/users/gww9jL6S64TBAz1SvPtiRX</code></pre>
+                </ul>
+            </div>
+            <div class="section transfer-cash-section">
+                <h3>Mange User Cash & Credit:</h3>
+                <ul>
+                    <i class="method">PUT</i>
+                    <li>deposit cash for a user: <code class="code">/api/users/[id]?cash=[number]</code></li>
+                    <li>update user credit: <code class="code">/api/users/[id]?credit=[number]</code></li>
+                    <li>update user credit & cash: <code class="code">/api/users/[id]?cash=[number]&credit=[number]</code></li>
+                    <pre>exmple: <code>http://localhost:3000/users/gww9jL6S64TBAz1SvPtiRX?cash=900</code></pre>
+                    <pre>exmple: <code>https://bankapi.cf/users/gww9jL6S64TBAz1SvPtiRX?credit=16500</code></pre>
+                    <pre>exmple: <code>https://bankapi.cf/users/gww9jL6S64TBAz1SvPtiRX?cash=1500&credit=2000</code></pre>
+                </ul>
+            </div>
+            <div class="section transfer-cash-section">
+                <h3>Mange User Withdraw:</h3>
+                <ul>
+                    <i class="method">PUT</i>
+                    <li>withdraw cash from a user: <code class="code">/api/users/[id]/withdraw?amount=[number]</code></li>
+                    <pre>exmple: <code>https://bankapi.cf/users/gww9jL6S64TBAz1SvPtiRX/withdraw?amount=1500</code></pre>
+                </ul>
+            </div>
+            <div class="section transfer-cash-section">
+                <h3>Mange Users Transaction:</h3>
+                <ul>
+                    <i class="method">PUT</i>
+                    <li>withdraw cash from a user: <code class="code">/api/users/[id]/P2Pwithdraw?amount=[number]?to=[ID]</code></li>
+                    <pre>exmple: <code>https://bankapi.cf/users/gww9jL6S64TBAz1SvPtiRX/P2Pwithdraw?amount=1500?to=g9e6FWULxKUEpNV3fPyR6e</code></pre>
+                </ul>
+            </div>
+        </main>
     </section>
 </body>
 </html>
