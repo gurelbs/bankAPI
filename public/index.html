@@ -64,9 +64,9 @@
                 <h3>Mange User Cash & Credit:</h3>
                 <ul>
                     <i class="method">PUT</i>
-                    <li>deposit cash for a user: <code class="code">/api/users/[id]?cash=[number]</code></li>
-                    <li>update user credit: <code class="code">/api/users/[id]?credit=[number]</code></li>
-                    <li>update user credit & cash: <code class="code">/api/users/[id]?cash=[number]&credit=[number]</code></li>
+                    <li>deposit cash for a user: <code class="code">/api/users?id=[id]&cash=[number]</code></li>
+                    <li>update user credit: <code class="code">/api/users?id=[id]?credit=[number]</code></li>
+                    <li>update user credit & cash: <code class="code">/api/users?id=[id]&cash=[number]&credit=[number]</code></li>
                     <pre>exmple: <code>http://localhost:3000/api/users?id=iQGbAk72oTr6KkuUwYeU9E&cash=5000</code></pre>
                     <pre>exmple: <code>http://localhost:3000/api/users?id=iQGbAk72oTr6KkuUwYeU9E&credit=1000</code></pre>
                     <pre>exmple: <code>http://bankapi.cf/api/users?id=iQGbAk72oTr6KkuUwYeU9E&credit=1000&cash=5000</code></pre>
@@ -81,11 +81,11 @@
                 </ul>
             </div>
             <div class="section transfer-cash-section">
-                <h3>Mange Users Transaction:</h3>
+                <h3>Mange Users P2P Transaction:</h3>
                 <ul>
                     <i class="method">PUT</i>
-                    <li>withdraw cash from a user: <code class="code">/api/users/[id]/P2Pwithdraw?amount=[number]?to=[ID]</code></li>
-                    <pre>exmple: <code>https://bankapi.cf/users/gww9jL6S64TBAz1SvPtiRX/P2Pwithdraw?amount=1500?to=g9e6FWULxKUEpNV3fPyR6e</code></pre>
+                    <li>withdraw cash from user to user: <code class="code">bankAPI.cf/api/users/[id]/<span class="fs-normal">withdrawP2P</span>?amount=[number]&to=[id]</code></li>
+                    <pre>exmple: <code>bankAPI.cf/api/users/[id]/<span class="fs-normal">withdrawP2P</span>?amount=1300&to=gww9jL6S64TBAz1SvPtiRX</code></pre>
                 </ul>
             </div>
         </main>
