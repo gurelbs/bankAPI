@@ -19,15 +19,15 @@
                 </h2>
             </div>
             <div class="webmap">
-                <h2>Cheatcheet:</h2>
+                <h2>cheatsheet:</h2>
                 <div class="box">
                     <li><pre>bankAPI.cf</pre></li>
-                    <li><pre>bankAPI.cf/api/create/[number]</pre></li>
-                    <li><pre>bankAPI.cf/api/users</pre></li>
-                    <li><pre>bankAPI.cf/api/users/[id]</pre></li>
-                    <li><pre>bankAPI.cf/api/users/[id]?cash=[number]&credit=[number]</pre></li>
-                    <li><pre>bankAPI.cf/api/users/[id]/withdraw?amount=[number]</pre></li>
-                    <li><pre>bankAPI.cf/api/users/[id]/P2Pwithdraw?amount=[number]?to=[id]</pre></li>
+                    <li>POST<pre>bankAPI.cf/api/create?q=[number]</pre></li>
+                    <li>GET<pre>bankAPI.cf/api/users</pre></li>
+                    <li>GET<pre>bankAPI.cf/api/users?id=[id]</pre></li>
+                    <li>PUT<pre>bankAPI.cf/api/users/?id=[id]&cash=[number]&credit=[number]</pre></li>
+                    <li>PUT<pre>bankAPI.cf/api/users/[id]/withdraw?amount=[number]</pre></li>
+                    <li>PUT<pre>bankAPI.cf/api/users/[id]/<span class="fs-normal">withdrawP2P</span>?amount=[number]&to=[id]</pre></li>
                 </div>
             </div>
         </header>
@@ -35,16 +35,16 @@
             <div class="section create-section">
                 <h3>Create:</h3>
                 <ul>
-                    <i class="method">GET</i>
+                    <i class="method">POST</i>
                     <li>
-                        <code class="code">/api/create/[number]</code> 
+                        <code class="code">/api/create?q=[number]</code> 
                         (positive integer number between 1 - 100)
                         <ul>
                             <li>
-                                <pre>exmple: <code>https://bankapi.cf/api/create/5</code></pre>
+                                <pre>exmple: <code>https://bankapi.cf/api/create?q=100</code></pre>
                             </li>
                             <li>
-                                <pre>exmple: <code>http://localhost:3000/api/create/5</code></pre>
+                                <pre>exmple: <code>http://localhost:3000/api/create?=13</code></pre>
                             </li>
                         </ul>
                     </li>
@@ -55,9 +55,9 @@
                 <ul>
                     <i class="method">GET</i>
                     <li>all users: <code class="code">/api/users</code></li>
-                    <li>user by id: <code class="code">/api/users/[id]</code></li>
-                    <pre>exmple: <code>https://bankapi.cf/users/gww9jL6S64TBAz1SvPtiRX</code></pre>
-                    <pre>exmple: <code>http://localhost:3000/users/gww9jL6S64TBAz1SvPtiRX</code></pre>
+                    <li>user by id: <code class="code">/api/users?id=[id]</code></li>
+                    <pre>exmple: <code>https://bankapi.cf/api/users?id=iQGbAk72oTr6KkuUwYeU9E</code></pre>
+                    <pre>exmple: <code>http://localhost:3000/api/users?id=iQGbAk72oTr6KkuUwYeU9E</code></pre>
                 </ul>
             </div>
             <div class="section transfer-cash-section">
@@ -67,9 +67,9 @@
                     <li>deposit cash for a user: <code class="code">/api/users/[id]?cash=[number]</code></li>
                     <li>update user credit: <code class="code">/api/users/[id]?credit=[number]</code></li>
                     <li>update user credit & cash: <code class="code">/api/users/[id]?cash=[number]&credit=[number]</code></li>
-                    <pre>exmple: <code>http://localhost:3000/users/gww9jL6S64TBAz1SvPtiRX?cash=900</code></pre>
-                    <pre>exmple: <code>https://bankapi.cf/users/gww9jL6S64TBAz1SvPtiRX?credit=16500</code></pre>
-                    <pre>exmple: <code>https://bankapi.cf/users/gww9jL6S64TBAz1SvPtiRX?cash=1500&credit=2000</code></pre>
+                    <pre>exmple: <code>http://localhost:3000/api/users?id=iQGbAk72oTr6KkuUwYeU9E&cash=5000</code></pre>
+                    <pre>exmple: <code>http://localhost:3000/api/users?id=iQGbAk72oTr6KkuUwYeU9E&credit=1000</code></pre>
+                    <pre>exmple: <code>http://bankapi.cf/api/users?id=iQGbAk72oTr6KkuUwYeU9E&credit=1000&cash=5000</code></pre>
                 </ul>
             </div>
             <div class="section transfer-cash-section">

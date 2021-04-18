@@ -4,9 +4,7 @@ const path = require('path')
 const PORT = process.env.PORT || 3000
 const app = express()
 const { 
-    createNewJSON, 
-    getData, 
-    checkCreateNumber, 
+    dataBase,
     createUser,
     userDetails,
     findUserIndex,
@@ -16,79 +14,90 @@ const {
     withdrawP2P,
 } = require('./utils.js')
 
-app.get('/api', (req, res) => {
-    try {
-        createNewJSON()
-        res.json({
-            'hey': "nice! now you have database!",
-            'what next?': "go to /api/create",
-        })
-    } catch (e) {
-        res.json({
-            error: 'there is some error...',
-            errorDetails: e.message
-        })
-    }
-})
 
-app.get(`/api/users`, (req, res) => {
-    res.json(getData())
-})
-
-app.get(`/api/users/:id`, (req, res) => {
-    const { id } = req.params
-    try {
-        let isExist = findUserIndex(id) > -1
-        if (isExist) {
-            res.json(userDetails(id))
-        } else {
-            res.json('user Not Found...')
-        }
-    } catch (e) {
-        res.json({
-            "error details": e.message,
-            'tip': 'check user by id (look like this: uwLSQJjsXn48V6MZz8RCPA)'
-        })
-    }
-})
-app.get(`/api/create`, (req, res) => {
-    try {
-        res.json({
-            'create user': 'to create user go to /api/create/[number]',
-            'query': 'positive integer number between 1 - 100'
-        })
-    } catch (e) {
-        res.json(`error: ${e.message}`)
-    }
-})
-app.get(`/api/create/:number`, (req, res) => {
-    const { number } = req.params
-    try {
-        if (checkCreateNumber(number)) {
-            createUser(number)
+app.get('/',express.static(path.join(__dirname, 'public')))
+// create all users or uniq user by query
+app.post(`/api/create`, (req, res) => {
+    let { q } = req.query
+    q = parseInt(q)
+    if (!q) res.json({
+        "message": `try to add query and number`,
+        "Exmple": '/api/create?q=3'
+    })
+    if (q && q > 0 && q < 101){
+        try {
+            createUser(q)
             res.json(`users created. go to /api/users to see all users`)
-        } else {
-            res.json(`error: try to create users (number between 1-100)`)
+        } catch (e) {
+            res.json(`error: ${e.message}`)
         }
-    } catch (e) {
-        res.json(`error: ${e.message}`)
+    } else {
+        try {
+            res.json(`try to user number between 1 to 100`)
+        } catch (e) {
+            res.json(`error: ${e.message}`)
+        }
+    }
+})
+// get users
+app.get(`/api/users`, (req, res) => {
+    const { id } = req.query
+    console.log(id);
+    const isNoQeary = !Object.values(req.query).length
+    if (isNoQeary){
+        try {
+            res.json(dataBase())
+        } catch (e) {
+            res.json({
+                error: 'there is some error...',
+                errorDetails: e.message
+            })
+        }
+    } else {
+        if (id){
+            try {
+                let isExist = findUserIndex(id) > -1
+                if (isExist) {
+                    res.json(userDetails(id))
+                } else {
+                    res.json('user Not Found...')
+                }
+            } catch (e) {
+                res.json({
+                    "error details": e.message,
+                    'tip': 'check user by id (look like this: uwLSQJjsXn48V6MZz8RCPA)'
+                })
+            }
+        } else {
+            try {
+                res.json({
+                    "oops...":'try again with the right query... ',
+                    "exmple": '/api/users?id=4MEkU9xufxSJvT2NrzYY58'
+                })
+            } catch (e) {
+                res.json({
+                    error: 'there is some error...',
+                    errorDetails: e.message
+                })
+            }
+        }
     }
 })
 
-// depositing cash to users/:id or update credit
+// put cash ot credit to user
+// exmple: /api/users?q=[id]&cash=[number]&credit=[number]
 
-app.put('/api/users/:id', (req, res) => {
-    const cash = req.query.cash
-    const credit = req.query.credit
-    const querys = Object.keys(req.query)
-    const { id } = req.params
+app.put('/api/users', (req, res) => {
+    const {id, cash, credit} = req.query || ''
     const user = userDetails(id)
-    const { name, passport } = user
-    let checkIfIncludes = querys.includes('cash') || querys.includes('credit')
-    let notDuplicated = typeof req.query.cash !== 'object' && typeof req.query.credit !== 'object' 
+    const { name, passport } = user || ''
+    let checkIfIncludes = !!id && (!!cash || !!credit)
+    let notDuplicatedQuery = typeof cash !== 'object' && typeof credit !== 'object' && typeof credit !== 'object'
     let cashIsMoreThen0 = parseInt(cash) > 0
     let creditIsVaild = parseInt(credit) >= 0;
-    if (checkIfIncludes && notDuplicated && (cashIsMoreThen0 || creditIsVaild)) {
+    let isQuery = Object.values(req.query).length > 1
+    console.log(id,isQuery,  checkIfIncludes , notDuplicatedQuery);
+    if (checkIfIncludes && notDuplicatedQuery) {
         if (cash && !credit && cashIsMoreThen0){
             try {
                 depositCash(id,passport,cash)
@@ -121,10 +130,10 @@ app.put('/api/users/:id', (req, res) => {
                 res.json(`error: ${e.message}`)
             }
         } else {
-            res.json('you can`t do that...')
+            res.json('you can`t do that na...')
         }
     } else {
-        res.json('you can`t do that...')
+        res.json('you can`t do that now...')
     }
 })
 
@@ -163,7 +172,7 @@ app.put('/api/users/:id/withdraw', (req, res) => {
     }
 })
 
-app.put('/api/users/:id/P2Pwithdraw', (req, res) => {
+app.put('/api/users/:id/withdrawP2P', (req, res) => {
     const { to, amount } = req.query;
     const { id } = req.params;
     let fromUserData = userDetails(id)
@@ -200,6 +209,20 @@ app.put('/api/users/:id/P2Pwithdraw', (req, res) => {
         }
     }
 })
+
+
 app.use(express.json())
 app.use(express.static(path.join(__dirname, 'public')))
+app.use((req, res) => {
+// Invalid request
+    res.json({
+    error: {
+        'oops...':'i can`t get this page',
+        'status':404,
+        'message':'Invalid Request',
+        'statusCode':404,
+        'go to':'/api/users or api/create'
+    }
+    });
+});
 app.listen(PORT, () => console.log(`server run at http://localhost:${PORT}`))

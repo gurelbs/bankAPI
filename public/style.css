@@ -8,6 +8,9 @@
 code, .code, pre{
     text-transform: lowercase;
 }
+.fs-normal{
+    text-transform: initial;
+}
 .container{
     background-color: #eee;
     color: #333;
@@ -134,8 +137,9 @@ main .section ul {
 .container main .section ul li{
     text-transform: capitalize;
 }
-.container main .section ul li ,.container main .section ul li  .code,pre, pre code{
+.container main .section ul li ,.container main .section ul li  .code,pre, pre code,.fs-normal{
     font-size: 1vw;
+    
     margin: .1vw;
 }
 pre code{

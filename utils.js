@@ -4,23 +4,28 @@ const faker = require('faker');
 const uuid = require('short-uuid');
 const { parse } = require('path');
 const { json } = require('express');
+const { LOADIPHLPAPI } = require('dns');
 const createID = uuid(); // Defaults to flickrBase58
 
-const createNewJSON = () => {
-    let data = ["nice! now you have database !"]
-    const isExists = fs.existsSync(db)
-    if (!isExists) fs.writeFileSync(db, JSON.stringify(data))
-}
+const dataBase = () => {
+    const isDataExists = fs.existsSync(db)
+    const createDB = () => {
+        const firstMsg = {
+            'nice!': "now you have database!",
+            'what next?': "go to /api/create to create some users",
+        }
+        fs.writeFileSync(db, JSON.stringify(firstMsg))
+        return getDB()
+    }
+    const getDB = () => {
+        const database = fs.readFileSync(db)
+        return JSON.parse(database.toString())
+    }
+    return !isDataExists 
+        ? createDB()
+        : getDB()
+    }
 
-const getData = () => {
-    let data = fs.readFileSync(db)
-    return JSON.parse(data.toString())
-}
-
-const checkCreateNumber = x => {
-    let num = parseInt(x)
-    return (num < 0 || num > 100) ? false : true
-}
 const createUser = (number) => {
     let data = []
     for (let i = 0; i < number; i++){
@@ -35,18 +40,18 @@ const createUser = (number) => {
     fs.writeFileSync(db, JSON.stringify(data))
 }
 const findUserIndex = id => {
-    let database = getData()
+    let database = dataBase()
     return database.findIndex(users => users.id === id)
 } 
 const userDetails = id => {
     let userID = findUserIndex(id)
-    let database = getData()
+    let database = dataBase()
     return database[userID]
 }
 const depositCash = (id,passport,cashAmount) => {
     const userID = findUserIndex(id);
     const user = userDetails(id)
-    const data = getData()
+    const data = dataBase()
     const cash = parseInt(cashAmount)
     if (Number.isInteger(cash) && cash > 0){
         if (userID > -1 && user.passport === passport){
@@ -64,7 +69,7 @@ const depositCash = (id,passport,cashAmount) => {
 const updateCredit = (id, passport, creditAmount) => {
     const userID = findUserIndex(id);
     const user = userDetails(id)
-    const data = getData()
+    const data = dataBase()
     const credit = parseInt(creditAmount)
     if (credit && credit > 0){
         if (passport === user.passport && userID > -1){
@@ -83,7 +88,7 @@ const updateCredit = (id, passport, creditAmount) => {
 const withdrawFromUser = (userID,userPassport, withdrawAmount) => {
     let userIndex = findUserIndex(userID)
     let userData = userDetails(userID)
-    let data = getData()
+    let data = dataBase()
     let endMsg = ''
     const { id, passport, cash, credit } = userData
     let creditNum = parseInt(credit)
@@ -130,7 +135,7 @@ const withdrawFromUser = (userID,userPassport, withdrawAmount) => {
 }
 
 const withdrawP2P = (fromUser,toUser, amount) => {
-    const data = getData()
+    const data = dataBase()
     const fromUserIndex = findUserIndex(fromUser.id)
     const toUserIndex = findUserIndex(toUser.id)
     const { cash, credit, name} = fromUser
@@ -185,9 +190,7 @@ const withdrawP2P = (fromUser,toUser, amount) => {
 }
 
 module.exports = {
-    createNewJSON,
-    getData,
-    checkCreateNumber,
+    dataBase,
     createUser,
     userDetails,
     findUserIndex,
