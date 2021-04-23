@@ -8,7 +8,8 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"cd client && npm start\" \" nodemon index\" ",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
   },
   "repository": {
     "type": "git",
@@ -22,8 +23,13 @@
   },
   "homepage": "https://github.com/gurelbs/bankAPI#readme",
   "dependencies": {
+    "concurrently": "6.0.2",
+    "cors": "2.8.5",
+    "dotenv": "8.2.0",
     "express": "4.17.1",
     "faker": "5.5.3",
+    "mongodb": "3.6.6",
+    "mongoose": "5.12.5",
     "short-uuid": "4.1.0"
   }
 }
