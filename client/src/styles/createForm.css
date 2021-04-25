@@ -1,0 +1,43 @@
+form {
+    display: flex;
+    flex-direction: column;
+}
+form div {
+    display: inline;
+    display: flex;
+    justify-content: space-around;
+    width: 80%;
+}
+form input,form label{
+    padding: 1vw;
+    font-size: 1vw;
+    width: 100%;
+    display: flex;
+    place-items: center;
+    justify-content: left;    
+    outline: 0;
+    border: 0;
+    border-bottom: 1px solid #333;
+}
+form label{
+    margin-left: 1vw;
+    padding: 0 2vw;
+    text-transform: uppercase;
+    flex: 1;
+}
+form input {
+    min-width: 200px;
+    flex: 4;
+}
+.submit input {
+    margin: 1vw;
+    padding: 1vw;
+    background-color: orange;
+    border: 0;
+    width: 50%;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: center;
+    place-items: center;
+}
