@@ -11,21 +11,26 @@ function UserPage() {
     const [showList,setShowList] = useState(false)
     const [spinner,setSpinner] = useState(true)
     const [getMsg, setGetMsg] = useState(null)
+    const [accountsList, setaccountsList] = useState([])
     const [createAccountMsg, setCreateAccountMsg] = useState(null)
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setGetMsg('')
                 setGetMsg('data fetched')
                 setSpinner(true)
                 const {data} = await api.get(window.location.pathname, {cancelToken: source.token})
-                console.log(data.accounts);
+                setaccountsList(data.accounts)
                 setUserData(data)
                 setSpinner(false)
                 setGetMsg('')
             } catch (e) {
                 if (axios.isCancel(e)) {
                     setGetMsg('user not found..')
+                    setTimeout(() => {
+                        setGetMsg('')
+                    }, 1000);
                     setSpinner(false)
                     console.log('Request canceled', e.message);
                 } else {
@@ -36,7 +41,7 @@ function UserPage() {
         }
         fetchData()
         return () => source.cancel()
-    },[])
+    },[accountsList])
     const createUserData = () => {
         return (<div>
             <h1>hello {userData.name}</h1>
@@ -71,7 +76,7 @@ function UserPage() {
                     {!spinner &&  <div className="list">
                         <h3>here is your accounts list</h3>
                         <button onClick={() => setShowList(!showList)}>{showList ? 'hide accounts List' : 'show accounts List'}</button>
-                        {!spinner && showList && userData?.accounts?.map((account,i) => {
+                        {!spinner && showList && accountsList.map((account,i) => {
                         return <ul key={i}>
                             <Link to={`${window.location.pathname}/${account}`}>#{i+1}: {account}</Link>
                         </ul> 
