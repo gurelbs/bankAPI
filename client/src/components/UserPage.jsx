@@ -38,7 +38,7 @@ function UserPage() {
         if (accounts) {
         return (<div>
             <h1>hello {name}</h1>
-            {accounts === {}  && <div>
+            {accounts && accounts.length < 1  && <div>
                 <p>you currently have no accounts</p>
                 <button onClick={handleCreateAccount}>create new account</button>
             </div>}            
@@ -46,11 +46,11 @@ function UserPage() {
         }
     }
     const createAccountList = (accounts) => {
-        if (accounts) {
-            return [...Object.values(accounts)].map((account,i) => <ul key={i}>
+            return (<div>
+                {[...Object.values(accounts)].map((account,i) => <ul key={i}>
                 <Link to={`${window.location.pathname}/${account}`}>#{i+1}: {account}</Link>
-            </ul>)
-        }
+            </ul>)}
+            </div>)
     }
     const handleCreateAccount = () => {
         const fetchData = async () => {
