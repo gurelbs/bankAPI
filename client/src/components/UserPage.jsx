@@ -11,7 +11,6 @@ function UserPage() {
     const [spinner,setSpinner] = useState(true)
     const [getMsg, setGetMsg] = useState(null)
     const [createAccountMsg, setCreateAccountMsg] = useState(null)
-    const {name,accounts} = userData 
 
     useEffect(() => {
         const fetchData = async () => {
@@ -33,11 +32,11 @@ function UserPage() {
         }
         fetchData()
         return () => source.cancel()
-    },[accounts])
+    },[])
     const createUserData = () => {
         return (<div>
-            <h1>hello {name}</h1>
-            {accounts && accounts?.length < 1  && <div>
+            <h1>hello {userData.name}</h1>
+            {userData?.accounts?.length < 1  && <div>
                 <p>you currently have no accounts</p>
                 <button onClick={handleCreateAccount}>create new account</button>
             </div>}            
@@ -73,9 +72,9 @@ function UserPage() {
                 {getMsg}
                     {spinner && 'loading...'}
                     {!spinner && createUserData()}
-                    {!spinner && accounts.length !== {} && <div className="list">
+                    {!spinner && userData.accounts.length !== {} && <div className="list">
                         <h3>here is your accounts list</h3>
-                        {createAccountList(accounts)}
+                        {createAccountList(userData.accounts)}
                     </div>}
                 </div>
                 <div className="create-section">
