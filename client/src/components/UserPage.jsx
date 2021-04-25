@@ -38,7 +38,7 @@ function UserPage() {
         if (accounts) {
         return (<div>
             <h1>hello {name}</h1>
-            {accounts?.length === 0  && <div>
+            {accounts === {}  && <div>
                 <p>you currently have no accounts</p>
                 <button onClick={handleCreateAccount}>create new account</button>
             </div>}            
@@ -75,7 +75,7 @@ function UserPage() {
                 {getMsg}
                     {spinner && 'loading...'}
                     {!spinner && createUserData()}
-                    {!spinner && accounts && accounts?.length !== 0 && <div className="list">
+                    {!spinner && accounts !== {} && <div className="list">
                         <h3>here is your accounts list</h3>
                         {createAccountList()}
                     </div>}
