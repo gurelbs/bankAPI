@@ -74,7 +74,7 @@ function UserPage() {
                     {!spinner && createUserData()}
                     {!spinner && userData && <div className="list">
                         <h3>here is your accounts list</h3>
-                        {createAccountList(userData.accounts)}
+                        {createAccountList(userData?.accounts)}
                     </div>}
                 </div>
                 <div className="create-section">
