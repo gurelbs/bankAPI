@@ -45,9 +45,8 @@ function UserPage() {
         </div>)
     }
     const createAccountList = () => {
-            const list = [...Object.values(userData.accounts)]
             return (<div>
-                {list.map((account,i) => <ul key={i}>
+                {userData?.accounts?.map((account,i) => <ul key={i}>
                 <Link to={`${window.location.pathname}/${account}`}>#{i+1}: {account}</Link>
             </ul>)}
             </div>)
@@ -75,7 +74,7 @@ function UserPage() {
                 {getMsg}
                     {spinner && 'loading...'}
                     {!spinner && createUserData()}
-                    {!spinner && userData && <div className="list">
+                    {!spinner && <div className="list">
                         <h3>here is your accounts list</h3>
                         {createAccountList() || 'you have no accounts yet'}
                     </div>}
