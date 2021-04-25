@@ -36,7 +36,7 @@ function UserPage() {
     const createUserData = () => {
         return (<div>
             <h1>hello {userData.name}</h1>
-            {userData?.accounts?.length < 1  && <div>
+            {userData.accounts.length === 0 && <div>
                 <p>you currently have no accounts</p>
                 <button onClick={handleCreateAccount}>create new account</button>
             </div>}            
