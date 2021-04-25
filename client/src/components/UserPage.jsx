@@ -65,6 +65,17 @@ function UserPage() {
         }
         fetchData()
     }
+    const createList = () => {
+        return (<div className="list">
+            <h3>here is your accounts list</h3>
+            <button onClick={() => setShowList(!showList)}>{showList ? 'hide accounts List' : 'show accounts List'}</button>
+            {showList && accountsList !== [] && accountsList.map((account,i) => {
+            return <ul key={i}>
+                <Link to={`${window.location.pathname}/${account}`}>#{i+1}: {account}</Link>
+            </ul> 
+            })}
+        </div>)
+    }
     return (
         <div>
             <Nav/>
@@ -73,15 +84,7 @@ function UserPage() {
                     {getMsg}
                     {spinner && 'loading...'}
                     {!spinner && createUserData()}
-                    {!spinner &&  <div className="list">
-                        <h3>here is your accounts list</h3>
-                        <button onClick={() => setShowList(!showList)}>{showList ? 'hide accounts List' : 'show accounts List'}</button>
-                        {!spinner && showList && accountsList.map((account,i) => {
-                        return <ul key={i}>
-                            <Link to={`${window.location.pathname}/${account}`}>#{i+1}: {account}</Link>
-                        </ul> 
-                        })}
-                    </div>}
+                    {!spinner &&  createList()}
                 </div>
             <div className="create-section">
                 {createAccountMsg}
