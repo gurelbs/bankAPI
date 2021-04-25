@@ -3,6 +3,9 @@ import Nav from './Nav'
 import api from  './../API/api'
 import './../styles/userpage.css'
 import {Link} from  'react-router-dom'
+import axios from 'axios'
+const CancelToken = axios.CancelToken;
+const source = CancelToken.source();
 function UserPage() {
     const [userData,setUserData] = useState({})
     const [spinner,setSpinner] = useState(true)
@@ -18,12 +21,18 @@ function UserPage() {
                 console.log(data);
                 setUserData(data)
                 setSpinner(false)
-            } catch (e) {
-                console.log(e);
-                setGetMsg('user not found..')
+            } catch (thrown) {
+                if (axios.isCancel(thrown)) {
+                    setGetMsg('user not found..')
+                    console.log('Request canceled', thrown.message);
+                } else {
+                    setGetMsg('there is some error')
+                    console.log('there is some error');
+                  }
             }
         }
         fetchData()
+        return () => source.cancel()
     },[])
     const createUserData = () => {
         if (accounts) {
