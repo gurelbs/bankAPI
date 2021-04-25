@@ -32,18 +32,16 @@ function UserPage() {
             }
         }
         fetchData()
-        // return () => source.cancel()
-    },[])
+        return () => source.cancel()
+    },[accounts])
     const createUserData = () => {
-        if (accounts) {
         return (<div>
             <h1>hello {name}</h1>
-            {accounts && accounts.length < 1  && <div>
+            {accounts && accounts?.length < 1  && <div>
                 <p>you currently have no accounts</p>
                 <button onClick={handleCreateAccount}>create new account</button>
             </div>}            
         </div>)
-        }
     }
     const createAccountList = (accounts) => {
             return (<div>
