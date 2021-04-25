@@ -45,12 +45,14 @@ function UserPage() {
         </div>)
     }
     const createAccountList = () => {
+            const list = [...Object.values(userData.accounts)]
+            if (list){
             return (<div>
-                {console.log([...Object.values(userData.accounts)])}
-                {[...Object.values(userData.accounts)].map((account,i) => <ul key={i}>
+                {list.map((account,i) => <ul key={i}>
                 <Link to={`${window.location.pathname}/${account}`}>#{i+1}: {account}</Link>
             </ul>)}
             </div>)
+            }
     }
     const handleCreateAccount = () => {
         const fetchData = async () => {
@@ -77,7 +79,7 @@ function UserPage() {
                     {!spinner && createUserData()}
                     {!spinner && userData && <div className="list">
                         <h3>here is your accounts list</h3>
-                        {createAccountList()}
+                        {createAccountList() || 'you have no accounts yet'}
                     </div>}
                 </div>
                 <div className="create-section">
