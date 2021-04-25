@@ -21,10 +21,9 @@ function UserPage() {
                 setGetMsg('data fetched')
                 setSpinner(true)
                 const {data} = await api.get(window.location.pathname, {cancelToken: source.token})
-                setaccountsList(data.accounts)
                 setUserData({
                     ...data,
-                    accounts: data.accounts
+                    accounts: data.accounts || []
                 })
                 setSpinner(false)
                 setGetMsg('')
@@ -47,8 +46,7 @@ function UserPage() {
     },[accountsList])
     const createUserData = () => {
         return (<div>
-            
-            {accountsList.length === 0 && <div>
+            {userData?.accounts?.length === 0 && <div>
                 <p>you currently have no accounts</p>
             </div>}            
         </div>)
@@ -72,7 +70,7 @@ function UserPage() {
         return (<div className="list">
             <h3>here is your accounts list</h3>
             <button onClick={() => setShowList(!showList)}>{showList ? 'hide accounts List' : 'show accounts List'}</button>
-            {showList && accountsList !== [] && accountsList.map((account,i) => {
+            {showList && userData?.accounts?.map((account,i) => {
             return <ul key={i}>
                 <Link to={`${window.location.pathname}/${account}`}>#{i+1}: {account}</Link>
             </ul> 
