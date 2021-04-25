@@ -15,6 +15,7 @@ function UserAccount() {
         const fetchData = async () => {
             try {
                 const {data} = await api.get(window.location.pathname, {cancelToken: source.token})
+                console.log(data);
                 setData(data)
             } catch (thrown) {
                 if (axios.isCancel(thrown)) {
@@ -23,11 +24,10 @@ function UserAccount() {
                     console.log('there is some error');
                   }
             }
-            console.log(data);
         }
         fetchData()
         return () => source.cancel()
-    },[data.accountDetails])
+    },[{data}])
     const handleCredit = () => {
         setToggle(!toggle)
         setResMsg('')
