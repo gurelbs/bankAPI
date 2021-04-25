@@ -46,7 +46,7 @@ function UserPage() {
     }
     const createAccountList = (accounts) => {
             return (<div>
-                {[...Object.values(accounts)].map((account,i) => <ul key={i}>
+                {[...Object.values(userData.accounts)].map((account,i) => <ul key={i}>
                 <Link to={`${window.location.pathname}/${account}`}>#{i+1}: {account}</Link>
             </ul>)}
             </div>)
