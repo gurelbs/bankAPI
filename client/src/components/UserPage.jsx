@@ -7,7 +7,9 @@ import axios from 'axios'
 const CancelToken = axios.CancelToken;
 const source = CancelToken.source();
 function UserPage() {
-    const [userData,setUserData] = useState({})
+    const [userData,setUserData] = useState({
+        accounts: [],
+    })
     const [spinner,setSpinner] = useState(true)
     const [getMsg, setGetMsg] = useState(null)
     const [createAccountMsg, setCreateAccountMsg] = useState(null)
