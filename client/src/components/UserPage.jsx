@@ -7,9 +7,8 @@ import axios from 'axios'
 const CancelToken = axios.CancelToken;
 const source = CancelToken.source();
 function UserPage() {
-    const [userData,setUserData] = useState({
-        accounts: [],
-    })
+    const [userData,setUserData] = useState({})
+    const [showList,setShowList] = useState(false)
     const [spinner,setSpinner] = useState(true)
     const [getMsg, setGetMsg] = useState(null)
     const [createAccountMsg, setCreateAccountMsg] = useState(null)
@@ -17,19 +16,22 @@ function UserPage() {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setGetMsg('data fetched')
                 setSpinner(true)
-                const {data} = await api.get(window.location.pathname)
-                console.log(data);
+                const {data} = await api.get(window.location.pathname, {cancelToken: source.token})
+                console.log(data.accounts);
                 setUserData(data)
                 setSpinner(false)
-            } catch (thrown) {
-                if (axios.isCancel(thrown)) {
+                setGetMsg('')
+            } catch (e) {
+                if (axios.isCancel(e)) {
                     setGetMsg('user not found..')
-                    console.log('Request canceled', thrown.message);
+                    setSpinner(false)
+                    console.log('Request canceled', e.message);
                 } else {
                     setGetMsg('there is some error')
                     console.log('there is some error');
-                  }
+                }
             }
         }
         fetchData()
@@ -40,16 +42,8 @@ function UserPage() {
             <h1>hello {userData.name}</h1>
             {userData?.accounts?.length === 0 && <div>
                 <p>you currently have no accounts</p>
-                <button onClick={handleCreateAccount}>create new account</button>
             </div>}            
         </div>)
-    }
-    const createAccountList = () => {
-            return (<div>
-                {userData?.accounts?.map((account,i) => <ul key={i}>
-                <Link to={`${window.location.pathname}/${account}`}>#{i+1}: {account}</Link>
-            </ul>)}
-            </div>)
     }
     const handleCreateAccount = () => {
         const fetchData = async () => {
@@ -71,18 +65,23 @@ function UserPage() {
             <Nav/>
             <div className="userpage-wrap">
                 <div>
-                {getMsg}
+                    {getMsg}
                     {spinner && 'loading...'}
                     {!spinner && createUserData()}
-                    {!spinner && <div className="list">
+                    {!spinner &&  <div className="list">
                         <h3>here is your accounts list</h3>
-                        {createAccountList() || 'you have no accounts yet'}
+                        <button onClick={() => setShowList(!showList)}>{showList ? 'hide accounts List' : 'show accounts List'}</button>
+                        {!spinner && showList && userData?.accounts?.map((account,i) => {
+                        return <ul key={i}>
+                            <Link to={`${window.location.pathname}/${account}`}>#{i+1}: {account}</Link>
+                        </ul> 
+                        })}
                     </div>}
                 </div>
-                <div className="create-section">
-                    {createAccountMsg}
-                    <button onClick={handleCreateAccount}>create new account</button>
-                </div>
+            <div className="create-section">
+                {createAccountMsg}
+                <button onClick={handleCreateAccount}>create new account</button>
+            </div>
             </div>
         </div>
     )
