@@ -7,14 +7,15 @@ function CreateUser() {
     const handleCreateUser = async e => {
         e.preventDefault()
             try {
-                await api.post('/user/create', {
+                const data = await api.post('/user/create', {
                     name: userData.name,
                     email: userData.email,
                     id: userData.userid,
                     password: userData.password,
                 })
                 setResMsg(`hey ${userData.name}. wellcome to bankAPI!`)
-                setUserData({})
+                setUserData(data)
+                console.log(userData);
             } catch (e) {
                 console.log(e);
                 setResMsg(`try again, there is some error...${e.message}`)
