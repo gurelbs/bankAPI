@@ -72,7 +72,7 @@ function UserPage() {
                 {getMsg}
                     {spinner && 'loading...'}
                     {!spinner && createUserData()}
-                    {!spinner && userData.accounts.length !== {} && <div className="list">
+                    {!spinner && userData && <div className="list">
                         <h3>here is your accounts list</h3>
                         {createAccountList(userData.accounts)}
                     </div>}
