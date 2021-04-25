@@ -22,7 +22,10 @@ function UserPage() {
                 setSpinner(true)
                 const {data} = await api.get(window.location.pathname, {cancelToken: source.token})
                 setaccountsList(data.accounts)
-                setUserData(data)
+                setUserData({
+                    ...data,
+                    accounts: data.accounts
+                })
                 setSpinner(false)
                 setGetMsg('')
             } catch (e) {
@@ -44,8 +47,8 @@ function UserPage() {
     },[accountsList])
     const createUserData = () => {
         return (<div>
-            <h1>hello {userData.name}</h1>
-            {userData?.accounts?.length === 0 && <div>
+            
+            {accountsList.length === 0 && <div>
                 <p>you currently have no accounts</p>
             </div>}            
         </div>)
@@ -83,6 +86,7 @@ function UserPage() {
                 <div>
                     {getMsg}
                     {spinner && 'loading...'}
+                    <h1>hello {userData.name}</h1>
                     {!spinner && createUserData()}
                     {!spinner &&  createList()}
                 </div>
