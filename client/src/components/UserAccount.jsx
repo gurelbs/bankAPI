@@ -27,7 +27,7 @@ function UserAccount() {
         }
         fetchData()
         return () => source.cancel()
-    },[])
+    },[data.user])
     const handleCredit = () => {
         setToggle(!toggle)
         setResMsg('')
