@@ -46,13 +46,11 @@ function UserPage() {
     }
     const createAccountList = () => {
             const list = [...Object.values(userData.accounts)]
-            if (list){
-            return (<div>
+            return (list !== [] && <div>
                 {list.map((account,i) => <ul key={i}>
                 <Link to={`${window.location.pathname}/${account}`}>#{i+1}: {account}</Link>
             </ul>)}
             </div>)
-            }
     }
     const handleCreateAccount = () => {
         const fetchData = async () => {
