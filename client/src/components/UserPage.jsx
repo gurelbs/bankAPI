@@ -66,7 +66,7 @@ function UserPage() {
                 {getMsg}
                     {spinner && 'loading...'}
                     {!spinner && createUserData()}
-                    {!spinner && accounts.length !== 0 && <div className="list">
+                    {!spinner && accounts && accounts?.length !== 0 && <div className="list">
                         <h3>here is your accounts list</h3>
                         {createAccountList()}
                     </div>}
