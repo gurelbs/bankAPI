@@ -32,7 +32,7 @@ function UserPage() {
             }
         }
         fetchData()
-        return () => source.cancel()
+        // return () => source.cancel()
     },[])
     const createUserData = () => {
         if (accounts) {
