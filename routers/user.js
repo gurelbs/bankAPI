@@ -66,6 +66,27 @@ router.put('/api/user/:id/:account', async (req,res) => {
         res.status(500).json(`there is some error ${e}`)
     }
 })
+router.put('/api/user/:id/:account', async (req,res) => {
+    const {id, account} = req.params
+    const cash = req.body
+    const user = await User.findOne({_id: id})
+    const accountDetails = await Account.findOneAndUpdate({_id: account},cash)
+    try {
+        if (!user){
+            res.status(404).json(`user not found`)
+        }
+        if (!accountDetails){
+            res.status(404).json(`not valid`)
+        }
+        const updateAccount = await Account.findOne({_id: account})
+        res.status(200).json({
+            "message": 'account updated',
+            "accountDetails":updateAccount
+        })
+    } catch (e) {
+        res.status(500).json(`there is some error ${e}`)
+    }
+})
 router.get('/api/user/:id', async (req,res) => {
     const id = req.params.id
     const user = await User.findById(id).exec()

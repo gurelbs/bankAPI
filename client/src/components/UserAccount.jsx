@@ -35,6 +35,8 @@ function UserAccount() {
     }
     const handleDeposite = () => {
         setToggle(!toggle)
+        setResMsg('')
+        setPlaceholderMsg('deposit money' )
     }
     const handleWithdraw = () => {
         setToggle(!toggle)
@@ -53,10 +55,24 @@ function UserAccount() {
             } catch (e) {
                 setResMsg(e.message)
             }
+            setAmountInput('')
+        }
+        const fetchCashData = async () => {
+            try {
+                const res = await api.put(window.location.pathname, {"cash": amountInput})
+                setData({...data,accountDetails: res.data.accountDetails})
+                setResMsg(res.data["message"])
+                setToggle(false)
+                setPlaceholderMsg('')
+            } catch (e) {
+                setResMsg(e.message)
+            }
         }
         return placeholderMsg === 'request more credit' 
         ?  fetchCreditData()
-        : ''
+        : placeholderMsg === 'deposit money' 
+        ? fetchCashData()
+        : null
     }
     const {_id, cash, credit} = data.accountDetails || ''
     const {name} = data.user || ''
@@ -87,7 +103,7 @@ function UserAccount() {
                 <input 
                     type='number'
                     autoFocus
-                    disabled 
+                    disabled={true}
                     value=''
                     onChange={e => setAmountInput(e.target.value)}
                     placeholder='to (WithdrawP2P)'
