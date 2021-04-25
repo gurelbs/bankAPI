@@ -44,8 +44,9 @@ function UserPage() {
             </div>}            
         </div>)
     }
-    const createAccountList = (accounts) => {
+    const createAccountList = () => {
             return (<div>
+                {console.log([...Object.values(userData.accounts)])}
                 {[...Object.values(userData.accounts)].map((account,i) => <ul key={i}>
                 <Link to={`${window.location.pathname}/${account}`}>#{i+1}: {account}</Link>
             </ul>)}
@@ -61,7 +62,7 @@ function UserPage() {
                 setCreateAccountMsg(data)
             } catch (e) {
                 console.log(e);
-                setCreateAccountMsg('there is some problem eith that...')
+                setCreateAccountMsg('there is some problem with that...')
             }
         }
         fetchData()
@@ -76,7 +77,7 @@ function UserPage() {
                     {!spinner && createUserData()}
                     {!spinner && userData && <div className="list">
                         <h3>here is your accounts list</h3>
-                        {createAccountList(userData?.accounts)}
+                        {createAccountList()}
                     </div>}
                 </div>
                 <div className="create-section">
