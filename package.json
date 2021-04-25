@@ -30,6 +30,7 @@
     "faker": "5.5.3",
     "mongodb": "3.6.6",
     "mongoose": "5.12.5",
-    "short-uuid": "4.1.0"
+    "short-uuid": "4.1.0",
+    "validator": "13.6.0"
   }
 }

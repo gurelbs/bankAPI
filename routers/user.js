@@ -1,29 +1,90 @@
 const express = require('express')
+const validator = require('validator');
 const User = require('./../modules/user')
+const Account = require('./../modules/account')
 const mongoose = require('mongoose')
-const { 
-    dataBase,
-    createUser,
-    userDetails,
-    findUserIndex,
-    depositCash,
-    updateCredit,
-    withdrawFromUser,
-    withdrawP2P,
-} = require('./utils')
+// const { 
+//     dataBase,
+//     createUser,
+//     userDetails,
+//     findUserIndex,
+//     depositCash,
+//     updateCredit,
+//     withdrawFromUser,
+//     withdrawP2P,
+// } = require('./utils');
+const { ObjectId } = require('bson');
 
 const router = new express.Router()
 
-router.post('/test', async (req,res) => {
+router.post('/api/user/create', async (req,res) => {
     const user = new User(req.body)
     try {
-        console.log(User.count());
-        user.save()
-        res.status(201).json(`hey ${user.name}, user created!`)
+        user.save( (err,user) => {
+            return err
+            ? res.status(500).json(err)
+            : res.status(201).json(`hey ${user.name}, user created!`)
+        })
     } catch (e) {
-        res.status(500).json('there is some error', + e)
+        res.status(500).json(`there is some error ${e}`)
+    }   
+})
+router.get('/api/user/:id/:account', async (req,res) => {
+    const {id, account} = req.params
+    const user = await User.findOne({_id: id})
+    const accountDetails = await Account.findOne({_id: account})
+    try {
+        if (!user){
+            res.status(404).json(`user not found`)
+        }
+        res.status(200).json({
+            "user": user,
+            "accountDetails":accountDetails
+        })
+    } catch (e) {
+        res.status(500).json(`there is some error ${e}`)
     }
 })
+router.put('/api/user/:id/:account', async (req,res) => {
+    const {id, account} = req.params
+    const credit = req.body
+    const user = await User.findOne({_id: id})
+    const accountDetails = await Account.findOneAndUpdate({_id: account},credit)
+    try {
+        if (!user){
+            res.status(404).json(`user not found`)
+        }
+        if (!accountDetails){
+            res.status(404).json(`not valid`)
+        }
+        const updateAccount = await Account.findOne({_id: account})
+        res.status(200).json({
+            "message": 'account updated',
+            "accountDetails":updateAccount
+        })
+    } catch (e) {
+        res.status(500).json(`there is some error ${e}`)
+    }
+})
+router.get('/api/user/:id', async (req,res) => {
+    const id = req.params.id
+    const user = await User.findById(id).exec()
+    try {
+        res.status(200).json(user)
+    } catch (e) {
+        res.status(500).json(`there is some error ${e}`)
+    }
+})
+router.get('/api/user', async (req,res) => {
+    const {email, password} = req.query
+    const user = await User.findOne({email: email, password: password }).exec()
+    try {
+        res.status(200).json(user)
+    } catch (e) {
+        res.status(500).json(`there is some error ${e}`)
+    }
+})
+
 // create all users or uniq user by query
 // router.post(`/api/create`, (req, res) => {
 //     let { q } = req.query
