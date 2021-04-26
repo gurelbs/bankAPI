@@ -18,9 +18,7 @@ function UserPage() {
             try {
                 setGetMsg('data fetched')
                 setSpinner(true)
-                const pathname = process.env.NODE_ENV === 'development' ? window.location.pathname : '/account/create '
-                console.log(window.location.pathname,pathname)
-                const {data} = await api.get(pathname, {cancelToken: source.token})
+                const {data} = await api.get(window.location.pathname, {cancelToken: source.token})
                 setUserData(data)
                 setSpinner(false)
                 setTimeout(() => {
@@ -28,13 +26,13 @@ function UserPage() {
                 }, 1000);
             } catch (e) {
                 if (axios.isCancel(e)) {
+                    setSpinner(false)
+                    console.log('Request canceled', e.message);
+                } else {
                     setGetMsg('user not found..')
                     setTimeout(() => {
                         setGetMsg('')
                     }, 1000);
-                    setSpinner(false)
-                    console.log('Request canceled', e.message);
-                } else {
                     setGetMsg('there is some error')
                     console.log('there is some error');
                 }
@@ -53,9 +51,14 @@ function UserPage() {
     const handleCreateAccount = () => {
         const fetchData = async () => {
             try {
-                const {data} = await api.post('/account/create', {
-                    owner: userData._id
-                })
+                const pathname = '/account/create'
+                    // process.env.NODE_ENV === 'development' 
+                    // ? window.location.pathname 
+                    // : process.env.NODE_ENV === 'production' 
+                    // ?  '/account/create'
+                    // : null
+
+                const {data} = await api.post(pathname, {owner: userData._id})
                 setCreateAccountMsg(data)
             } catch (e) {
                 console.log(e);
