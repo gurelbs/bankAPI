@@ -139,11 +139,15 @@ function UserAccount() {
                     setTimeout(() => {
                         setResMsg('')
                     }, 2000);
+                    setAmountInput('')
+                    setToAccount('')
                 } else {
                     setResMsg(`transaction is not valid`)
                     setTimeout(() => {
                         setResMsg('')
                     }, 2000);
+                    setAmountInput('')
+                    setToAccount('')
                 }
             } catch (e) {
                 setResMsg(e.message)
