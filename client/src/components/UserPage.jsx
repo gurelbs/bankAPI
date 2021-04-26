@@ -2,7 +2,7 @@ import React, {useState,useEffect} from 'react'
 import Nav from './Nav'
 import api from  './../API/api'
 import './../styles/userpage.css'
-import {Link,useParams} from  'react-router-dom'
+import {Link,useLocation,useParams} from  'react-router-dom'
 import axios from 'axios'
 const CancelToken = axios.CancelToken;
 const source = CancelToken.source();
@@ -13,13 +13,13 @@ function UserPage() {
     const [getMsg, setGetMsg] = useState('')
     const [createAccountMsg, setCreateAccountMsg] = useState('')
     let { id } = useParams();
-
+    let location = useLocation();
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setGetMsg('data fetched')
                 setSpinner(true)
-                let {data} = await api.get(`/user/${id}` , {cancelToken: source.token})
+                let {data} = await api.get(location.pathname, {cancelToken: source.token})
                 setUserData(data.user)
                 setSpinner(false)
                 setTimeout(() => {
@@ -41,7 +41,7 @@ function UserPage() {
         }
         fetchData()
         return () => source.cancel()
-    },[userData,id])
+    },[location])
     const createUserData = () => {
         return (<div>
             {userData?.accounts?.length === 0 && <div>
@@ -65,7 +65,7 @@ function UserPage() {
         return (<div className="list">
             {userData?.accounts?.map((account,i) => {
             return <ul key={i}>
-                <Link to={`${window.location.pathname}/${account}`}>#{i+1}: {account}</Link>
+                <Link to={`${location.pathname}/${account}`}>#{i+1}: {account}</Link>
             </ul> 
             })}
         </div>)
