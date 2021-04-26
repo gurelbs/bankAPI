@@ -21,7 +21,7 @@ function UserPage() {
                 setSpinner(true)
                 let {data} = await api.get(location.pathname, {cancelToken: source.token})
                 setUserData(data.user)
-                console.log(data.user,location.pathname)
+                console.log(location.pathname)
                 setSpinner(false)
                 setTimeout(() => {
                     setGetMsg('')
@@ -36,13 +36,12 @@ function UserPage() {
                         setGetMsg('')
                     }, 1000);
                     setGetMsg('there is some error')
-                    console.log('there is some error');
                 }
             }
         }
         fetchData()
         return () => source.cancel()
-    },[location])
+    },[userData,location])
     const createUserData = () => {
         return (<div>
             {userData?.accounts?.length === 0 && <div>
@@ -53,10 +52,9 @@ function UserPage() {
     const handleCreateAccount = () => {
         const fetchData = async () => {
             try {
-                const data = process.env.NODE_ENV === 'development' 
-                    ? await api.post('/account/create', {owner: id})
-                    : await axios.post('api/account/create', {owner: id})
-                setCreateAccountMsg(data)
+                const accountData = await api.post('/account/create', {owner: id})
+                console.log(accountData);
+                setCreateAccountMsg(accountData)
             } catch (e) {
                 console.log(e);
                 setCreateAccountMsg('there is some problem with that...')

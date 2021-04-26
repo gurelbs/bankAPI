@@ -5,8 +5,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 
 const router = new express.Router()
-const pathName = '/api/account/create' || 'user/api/account/create'
-router.post(pathName, async (req,res) => {
+router.post('/api/account/create', async (req,res) => {
     try {
         const user = await User.findOne({_id: req.body.owner})
         if (!user) res.status(404).json('i can`t find this account owner...')
