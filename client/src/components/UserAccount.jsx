@@ -19,14 +19,16 @@ function UserAccount() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await api.get(window.location.pathname, {cancelToken: source.token})
+                const {data} = await api.get(window.location.pathname, {cancelToken: source.token})
                 console.log(data);
-                if(res){
-                    setData(res.data)
+                if(data){
+                    setData(data)
+                    setResMsg(data.message)
                 }
             } catch (thrown) {
                 if (axios.isCancel(thrown)) {
                     console.log('Request canceled', thrown.message);
+                    setResMsg(thrown.message)
                 } else {
                     console.log('there is some error');
                   }
@@ -92,7 +94,7 @@ function UserAccount() {
                 })
                 if (ifis) {
                     res = await api.put(path, {[name]: update})
-                    setData({...data,accountDetails: res.data.accountDetails})
+                    setData({...data,accountDetails: data.accountDetails})
                     setPlaceholderMsg('')
                     setAmountInput('')
                 } else {
@@ -126,8 +128,8 @@ function UserAccount() {
                         "to": toAccount,
                         "amount": amountInput,
                     })
-                    setResMsg(`${res.data.message || res.data}`)
-                    setData({...data,accountDetails: res.data.fromAccount})
+                    setResMsg(`${data.message || data}`)
+                    setData({...data,accountDetails: data.fromAccount})
                     setTimeout(() => {
                         setResMsg('')
                     }, 2000);

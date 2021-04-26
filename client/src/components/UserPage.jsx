@@ -19,7 +19,7 @@ function UserPage() {
             try {
                 setGetMsg('data fetched')
                 setSpinner(true)
-                let {data} = await api.get(window.location.pathname)
+                let {data} = await api.get(`/user/${id}` , {cancelToken: source.token})
                 setUserData(data.user)
                 setSpinner(false)
                 setTimeout(() => {
@@ -40,8 +40,8 @@ function UserPage() {
             }
         }
         fetchData()
-        // return () => source.cancel()
-    },[])
+        return () => source.cancel()
+    },[userData,id])
     const createUserData = () => {
         return (<div>
             {userData?.accounts?.length === 0 && <div>

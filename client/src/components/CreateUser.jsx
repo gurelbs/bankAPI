@@ -15,7 +15,7 @@ function CreateUser() {
                 })
                 setResMsg(`hey ${userData.name}. wellcome to bankAPI!`)
                 setUserData(data)
-                console.log(userData);
+                // console.log(userData);
             } catch (e) {
                 console.log(e);
                 setResMsg(`try again, there is some error...${e.message}`)
