@@ -168,12 +168,12 @@ router.put('/api/user/:id/:account/withdrawP2P', async(req,res) => {
                 "toAccount":updatedToAccount
             })
         }
-        console.log({
-            'not valid': !fromUserDetails || !fromAccountDetails || !toAccountDetails || !amount,
-            'valid': amount <= fromUserCash && fromUserCash >= 0 && amount > 0,
-            'valid': (amount > fromUserCash && fromUserCash >= 0) && amount <= (fromUserCash + fromUserCredit) && amount > 0,
-            'valid': amount > fromUserCash && fromUserCash < 0 && amount <= fromUserCredit && fromUserCredit >= 0 && amount > 0
-        })
+        // console.log({
+        //     'not valid': !fromUserDetails || !fromAccountDetails || !toAccountDetails || !amount,
+        //     'valid': amount <= fromUserCash && fromUserCash >= 0 && amount > 0,
+        //     'valid': (amount > fromUserCash && fromUserCash >= 0) && amount <= (fromUserCash + fromUserCredit) && amount > 0,
+        //     'valid': amount > fromUserCash && fromUserCash < 0 && amount <= fromUserCredit && fromUserCredit >= 0 && amount > 0
+        // })
         if (!fromUserDetails || !fromAccountDetails || !toAccountDetails || !amount){
             res.status(404).send('request not valid')
         }
@@ -208,7 +208,7 @@ router.put('/api/user/:id/:account/withdrawP2P', async(req,res) => {
 })
 router.get('/api/user/:id', async (req,res) => {
     const id = req.params.id
-    const user = await User.findById(id).exec()
+    const user = await User.findOne({_id: id}).exec()
     try {
         res.status(200).json(user)
     } catch (e) {
