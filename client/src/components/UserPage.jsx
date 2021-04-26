@@ -30,7 +30,7 @@ function UserPage() {
                     res = await api.get(pathname, {cancelToken: source.token})
                 }
                 setUserData(res.data)
-                console.log(id,res.data,pathname)
+                console.log(id,res,pathname,window.location)
                 setSpinner(false)
                 setTimeout(() => {
                     setGetMsg('')
