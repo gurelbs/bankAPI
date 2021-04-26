@@ -41,7 +41,7 @@ function UserPage() {
         }
         fetchData()
         return () => source.cancel()
-    },[userData,id])
+    },[])
     const createUserData = () => {
         return (<div>
             {userData?.accounts?.length === 0 && <div>
