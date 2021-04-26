@@ -11,9 +11,6 @@ router.post('/api/account/create', async (req,res) => {
     try {
         const user = await User.findById(req.body.owner).exec()
         if (!user) res.status(404).json('i can`t find this account owner...')
-        // newAcount.save( async (err,account) => {
-        //     if (err) res.status(500).json(err)
-        // })
         User.findOneAndUpdate({_id: user._id}, 
             {"$push": {"accounts": newAcount._id}},
             { "new": true, "upsert": true }, (err, user) => {

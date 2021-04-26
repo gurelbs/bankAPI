@@ -26,8 +26,8 @@ function UserAccount() {
             }
         }
         fetchData()
-        // return () => source.cancel()
-    },[])
+        return () => source.cancel()
+    },[data])
     const handleCredit = () => {
         setToggle(!toggle)
         setResMsg('')
@@ -40,38 +40,43 @@ function UserAccount() {
     }
     const handleWithdraw = () => {
         setToggle(!toggle)
+        setResMsg('')
+        setPlaceholderMsg('withdraw money' )
     }
     const handleWithdrawP2P = () => {
         setToggle(!toggle)
     }
     const handleSubmit = () => {
-        const fetchCreditData = async () => {
+        const handleAllData = async (name, path, update, ifis, msg) => {
+            let res
             try {
-                const res = await api.put(window.location.pathname, {"credit": amountInput})
-                setData({...data,accountDetails: res.data.accountDetails})
-                setResMsg(res.data["message"])
                 setToggle(false)
-                setPlaceholderMsg('')
+                if (ifis) {
+                    res = await api.put(path, {[name]: update})
+                    setData({...data,accountDetails: res.data.accountDetails})
+                    setToggle(false)
+                    setPlaceholderMsg('')
+                    setAmountInput('')
+                } else {
+                    setResMsg(msg)
+                    setAmountInput('')
+                }
             } catch (e) {
                 setResMsg(e.message)
-            }
-            setAmountInput('')
-        }
-        const fetchCashData = async () => {
-            try {
-                const res = await api.put(window.location.pathname, {"cash": amountInput})
-                setData({...data,accountDetails: res.data.accountDetails})
-                setResMsg(res.data["message"])
-                setToggle(false)
-                setPlaceholderMsg('')
-            } catch (e) {
-                setResMsg(e.message)
+                setAmountInput('')
             }
         }
+        const moreThen0 = parseFloat(amountInput) > 0;
+        const creditLoaction = window.location.pathname
+        const cashDepositLoaction = `${window.location.pathname}/deposit`
+        const cashWithdrawLoaction = `${window.location.pathname}/withdraw`
+
         return placeholderMsg === 'request more credit' 
-        ?  fetchCreditData()
+        ? handleAllData("credit",creditLoaction,amountInput,moreThen0,'credit requested amount must be more then 0')
         : placeholderMsg === 'deposit money' 
-        ? fetchCashData()
+        ? handleAllData("cash",cashDepositLoaction,amountInput,moreThen0,'deposit must be more then 0')
+        : placeholderMsg === 'withdraw money' 
+        ? handleAllData("cash",cashWithdrawLoaction,amountInput,moreThen0,'withdraw amount must be more then 0') 
         : null
     }
     const {_id, cash, credit} = data.accountDetails || ''
@@ -80,11 +85,11 @@ function UserAccount() {
         <div>
             <Nav/>
             <div>
-                {data && <h1>hello {name}</h1>}
+                {<h1>hello {name}</h1>}
                 {<p>wellcome to your account number {_id}</p>}
                 <div>
-                    <h1>cash: {cash}</h1>
-                    <h1>credit: {credit}</h1>
+                    <h1>cash: {(new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cash))}</h1>
+                    <h1>credit: {(new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(credit))}</h1>
                 </div>
             </div>
             <div>

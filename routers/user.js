@@ -49,14 +49,18 @@ router.put('/api/user/:id/:account', async (req,res) => {
     const {id, account} = req.params
     const credit = req.body
     const user = await User.findOne({_id: id})
-    const accountDetails = await Account.findOneAndUpdate({_id: account},credit)
+    const accountDetails = await Account.findOne({_id: account})
     try {
         if (!user){
             res.status(404).json(`user not found`)
         }
         if (!accountDetails){
-            res.status(404).json(`not valid`)
+            res.status(404).json(`account not found`)
         }
+        if (credit < 0){
+            res.status(404).json(`requested credit must be more then 0`)
+        }
+        await Account.findOneAndUpdate({_id: accountDetails._id},credit)
         const updateAccount = await Account.findOne({_id: account})
         res.status(200).json({
             "message": 'account updated',
@@ -66,25 +70,94 @@ router.put('/api/user/:id/:account', async (req,res) => {
         res.status(500).json(`there is some error ${e}`)
     }
 })
-router.put('/api/user/:id/:account', async (req,res) => {
+router.put('/api/user/:id/:account/deposit', async (req,res) => {
     const {id, account} = req.params
-    const cash = req.body
+    const cashAmount = req.body
     const user = await User.findOne({_id: id})
-    const accountDetails = await Account.findOneAndUpdate({_id: account},cash)
+    const accountDetails = await Account.findOne({_id: account})
+    const cash = parseFloat(accountDetails.cash) + parseFloat(cashAmount.cash)
+    try {
+        if (!user){
+            res.status(404).json(`user not found`)
+        }
+        if (!accountDetails || parseFloat(cash) < 0){
+            res.status(404).json(`not valid`)
+        }
+        await Account.findOneAndUpdate({_id: accountDetails._id}, {"cash": cash})
+        const updatedAccount = await Account.findOne({_id: account})
+        res.status(200).json({
+            "message": 'account updated',
+            "accountDetails": updatedAccount
+        })
+    } catch (e) {
+        res.status(500).json(`there is some error ${e}`)
+    }
+})
+router.put('/api/user/:id/:account/withdraw', async (req,res) => {
+    let {id, account} = req.params
+    let withdrawAmount = req.body
+    let user = await User.findOne({_id: id})
+    let accountDetails = await Account.findOne({_id: account})
+    let withdrawCash = parseFloat(withdrawAmount.cash)
+    let accCash = parseFloat(accountDetails.cash)
+    let accCredit = parseFloat(accountDetails.credit)
+    let newCredit,newCash,updatedAccount
     try {
         if (!user){
             res.status(404).json(`user not found`)
         }
         if (!accountDetails){
-            res.status(404).json(`not valid`)
+            res.status(404).json(`account not found`)
         }
-        const updateAccount = await Account.findOne({_id: account})
-        res.status(200).json({
-            "message": 'account updated',
-            "accountDetails":updateAccount
-        })
+        if (accCredit < 0){
+            res.status(404).json(`withdraw amount is not valid`)
+        }
+        if (withdrawCash <= accCash && accCash >= 0){
+            const cash = accCash - withdrawCash
+            await Account.findOneAndUpdate({_id: accountDetails._id}, {"cash": cash})
+            updatedAccount = await Account.findOne({_id: account})
+            res.status(200).json({
+                "message": 'account updated',
+                "accountDetails":updatedAccount
+            })
+        } else if ((withdrawCash > accCash && accCash >= 0) && withdrawCash <= (accCash + accCredit)){
+            const remind = withdrawCash - accCash
+            newCredit = accCredit - remind
+            newCash = 0 - remind
+            await Account.findOneAndUpdate({_id: accountDetails._id}, {"cash": newCash, "credit": newCredit})
+            updatedAccount = await Account.findOne({_id: account})
+            res.status(200).json({
+                "message": 'account updated',
+                "accountDetails":updatedAccount
+            })
+        } else if (withdrawCash > accCash && accCash < 0 && withdrawCash <= accCredit && accCredit >= 0){
+            newCash = accCash - withdrawCash
+            newCredit = accCredit - withdrawCash
+            await Account.findOneAndUpdate({_id: accountDetails._id}, {"cash": newCash, "credit": newCredit})
+            updatedAccount = await Account.findOne({_id: account})
+            res.status(200).json({
+                "message": 'account updated',
+                "accountDetails":updatedAccount
+            })
+        } else {
+            res.status(500).json(`withdraw not valid`)
+        }
     } catch (e) {
         res.status(500).json(`there is some error ${e}`)
+    }
+})
+router.put('/api/user/:id/:account/withdrawP2P', async(req,res) => {
+    let { id, account} = req.params
+    let toAccount = req.body.to 
+    let amount = req.body.amount
+    let fromUserDetails = await User.findOne({_id: id})
+    let fromAccountDetails = await Account.findOne({_id: account})
+    let toAccountDetails = await Account.findOne({_id: toAccount})
+    console.log(fromUserDetails,fromAccountDetails,amount,toAccount)
+    try {
+        res.status(200).json(fromUserDetails,fromAccountDetails,amount,toAccountDetails)
+    } catch (error) {
+        res.status(404).send(error)
     }
 })
 router.get('/api/user/:id', async (req,res) => {
