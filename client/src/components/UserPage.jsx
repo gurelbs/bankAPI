@@ -19,7 +19,7 @@ function UserPage() {
             try {
                 setGetMsg('data fetched')
                 setSpinner(true)
-                let {data} = await api.get(window.location.pathname , {cancelToken: source.token})
+                let {data} = await api.get(window.location.pathname)
                 setUserData(data.user)
                 setSpinner(false)
                 setTimeout(() => {
@@ -40,7 +40,7 @@ function UserPage() {
             }
         }
         fetchData()
-        return () => source.cancel()
+        // return () => source.cancel()
     },[])
     const createUserData = () => {
         return (<div>
