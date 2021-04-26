@@ -20,8 +20,14 @@ function UserPage() {
                 setGetMsg('data fetched')
                 setSpinner(true)
                 let {data} = await api.get(location.pathname, {cancelToken: source.token})
-                setUserData(data.user)
-                console.log(data,data.user,location,location.pathname)
+                if (data){
+                    setUserData(data.user)
+                } else {
+                    setGetMsg('data not found')
+                    setTimeout(() => {
+                        setGetMsg('')
+                    }, 1000);                  
+                }
                 setSpinner(false)
                 setTimeout(() => {
                     setGetMsg('')
