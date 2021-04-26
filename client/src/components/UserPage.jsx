@@ -21,7 +21,7 @@ function UserPage() {
                 setSpinner(true)
                 let {data} = await api.get(location.pathname, {cancelToken: source.token})
                 setUserData(data.user)
-                console.log(location.pathname)
+                console.log(data.user,location,location.pathname)
                 setSpinner(false)
                 setTimeout(() => {
                     setGetMsg('')
