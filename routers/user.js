@@ -214,7 +214,7 @@ router.get(pathName, async (req,res) => {
         if (id){
             const user = await User.findOne({_id: id}).exec()
             console.log(user)
-            res.status(200).json(user)
+            res.status(200).json({"user": user})
         } else {
             res.status(500).json(`there is some error..`)
         }

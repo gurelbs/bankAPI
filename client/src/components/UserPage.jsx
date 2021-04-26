@@ -19,9 +19,9 @@ function UserPage() {
             try {
                 setGetMsg('data fetched')
                 setSpinner(true)
-                let res = await api.get(window.location.pathname , {cancelToken: source.token})
-                setUserData(res.data)
-                console.log(id,res,window.location.pathname ,window.location)
+                let {data} = await api.get(window.location.pathname , {cancelToken: source.token})
+                setUserData(data.user)
+                console.log(id,data,window.location.pathname ,window.location)
                 setSpinner(false)
                 setTimeout(() => {
                     setGetMsg('')
