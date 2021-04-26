@@ -19,18 +19,9 @@ function UserPage() {
             try {
                 setGetMsg('data fetched')
                 setSpinner(true)
-                const pathname = 
-                    process.env.NODE_ENV === 'development' 
-                    ? window.location.pathname 
-                    : process.env.NODE_ENV === 'production'
-                    ? `/${id}`
-                    : null
-                let res;
-                if (pathname){
-                    res = await api.get(pathname, {cancelToken: source.token})
-                }
+                let res = await api.get(window.location.pathname , {cancelToken: source.token})
                 setUserData(res.data)
-                console.log(id,res,pathname,window.location)
+                console.log(id,res,window.location.pathname ,window.location)
                 setSpinner(false)
                 setTimeout(() => {
                     setGetMsg('')
