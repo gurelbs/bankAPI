@@ -2,9 +2,9 @@ import React,{useState, useEffect} from 'react'
 import  Nav from './Nav' 
 import api from './../API/api'
 import axios from 'axios'
-const CancelToken = axios.CancelToken;
-const source = CancelToken.source();
+import {useLocation} from 'react-router-dom'
 function UserAccount() {
+    const location = useLocation()
     const [data, setData] = useState({})
     const [resMsg, setResMsg] = useState('')
     const [openInput, setOpenInput] = useState({
@@ -16,13 +16,16 @@ function UserAccount() {
     const [toAccount, setToAccount] = useState('')
     const [placeholderMsg, setPlaceholderMsg] = useState('')
     const [amountInput, setAmountInput] = useState('')
+    const [isSubmitClick, setIsSubmitClick] = useState(false)
     useEffect(() => {
+        const CancelToken = axios.CancelToken;
+        const source = CancelToken.source();
         const fetchData = async () => {
             try {
-                const {data} = await api.get(window.location.pathname, {cancelToken: source.token})
+                const {data} = await api.get(location.pathname, {cancelToken: source.token})
                 console.log(data);
                 if(data){
-                    setData(data)
+                    setData({...data,accountDetails: data.accountDetails})
                     setResMsg(data.message)
                 }
             } catch (thrown) {
@@ -36,7 +39,7 @@ function UserAccount() {
         }
         fetchData()
         return () => source.cancel()
-    },[data])
+    },[isSubmitClick])
     const handleCredit = () => {
         setResMsg('')
         setPlaceholderMsg('requested credit amount')
@@ -77,7 +80,9 @@ function UserAccount() {
             isWithdrawP2P: true,
         })
     }
+
     const handleSubmit = () => {
+        setIsSubmitClick(true)
         let res;
         const moreThen0 = parseFloat(amountInput) > 0;
         const creditLoaction = window.location.pathname
@@ -111,11 +116,12 @@ function UserAccount() {
                     }, 2000);
                 setAmountInput('')
             }
+            setIsSubmitClick(false)
         }
         const WithdrawP2P = async () => {
             const isValid = toAccount !== '' 
                 && amountInput > 0
-                && amountInput <= data.accountDetails.cash + data.accountDetails.credit
+                && amountInput <= data?.accountDetails?.cash + data?.accountDetails?.credit
             try {
                 setOpenInput({
                     isCredit: false,
@@ -124,11 +130,11 @@ function UserAccount() {
                     isWithdrawP2P: false,
                 })
                 if (isValid){
-                    const res = await api.put(withdrawP2PLoaction, {
+                    const {data} = await api.put(withdrawP2PLoaction, {
                         "to": toAccount,
                         "amount": amountInput,
                     })
-                    setResMsg(`${data.message || data}`)
+                    setResMsg(`${data.message}`)
                     setData({...data,accountDetails: data.fromAccount})
                     setTimeout(() => {
                         setResMsg('')
@@ -159,12 +165,12 @@ function UserAccount() {
         ? WithdrawP2P()
         : null
     }
+
     const {_id, cash, credit} = data.accountDetails || ''
     return (
         <div>
             <Nav/>
             <div>
-                {console.log(data)}
                 {<h1>hello {data?.user?.name}</h1>}
                 {<p>wellcome to your account number {_id || ''}</p>}
                 <div>
