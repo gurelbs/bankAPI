@@ -21,6 +21,7 @@ function UserPage() {
                 setSpinner(true)
                 let {data} = await api.get(location.pathname, {cancelToken: source.token})
                 setUserData(data.user)
+                console.log(data.user,location.pathname)
                 setSpinner(false)
                 setTimeout(() => {
                     setGetMsg('')
@@ -52,7 +53,9 @@ function UserPage() {
     const handleCreateAccount = () => {
         const fetchData = async () => {
             try {
-                const {data} = await api.post('/account/create', {owner: id})
+                const data = process.env.NODE_ENV === 'development' 
+                    ? await api.post('/account/create', {owner: id})
+                    : await axios.post('api/account/create', {owner: id})
                 setCreateAccountMsg(data)
             } catch (e) {
                 console.log(e);
