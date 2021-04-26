@@ -7,8 +7,13 @@ const source = CancelToken.source();
 function UserAccount() {
     const [data, setData] = useState({})
     const [resMsg, setResMsg] = useState('')
-    const [toggle, setToggle] = useState(false)
-    const [isWithdrawP2P, setIsWithdrawP2P] = useState(false)
+    const [openInput, setOpenInput] = useState({
+        isCredit: false,
+        isDeposit: false,
+        isWithdraw: false,
+        isWithdrawP2P: false,
+    })
+    const [toAccount, setToAccount] = useState('')
     const [placeholderMsg, setPlaceholderMsg] = useState('')
     const [amountInput, setAmountInput] = useState('')
     useEffect(() => {
@@ -29,67 +34,141 @@ function UserAccount() {
         return () => source.cancel()
     },[data])
     const handleCredit = () => {
-        setToggle(!toggle)
         setResMsg('')
-        setPlaceholderMsg('request more credit')
+        setPlaceholderMsg('requested credit amount')
+        setOpenInput({
+            isCredit: true,
+            isDeposit: false,
+            isWithdraw: false,
+            isWithdrawP2P: false,
+        })
     }
     const handleDeposite = () => {
-        setToggle(!toggle)
         setResMsg('')
-        setPlaceholderMsg('deposit money' )
+        setPlaceholderMsg('deposit money amount' )
+        setOpenInput({
+            isCredit: false,
+            isDeposit: true,
+            isWithdraw: false,
+            isWithdrawP2P: false,
+        })
     }
     const handleWithdraw = () => {
-        setToggle(!toggle)
         setResMsg('')
-        setPlaceholderMsg('withdraw money' )
+        setPlaceholderMsg('withdraw money amount')
+        setOpenInput({
+            isCredit: false,
+            isDeposit: false,
+            isWithdraw: true,
+            isWithdrawP2P: false,
+        })
     }
     const handleWithdrawP2P = () => {
-        setToggle(!toggle)
+        setResMsg('')
+        setPlaceholderMsg('withdraw P2P amount')
+        setOpenInput({
+            isCredit: false,
+            isDeposit: false,
+            isWithdraw: false,
+            isWithdrawP2P: true,
+        })
     }
     const handleSubmit = () => {
-        const handleAllData = async (name, path, update, ifis, msg) => {
-            let res
-            try {
-                setToggle(false)
-                if (ifis) {
-                    res = await api.put(path, {[name]: update})
-                    setData({...data,accountDetails: res.data.accountDetails})
-                    setToggle(false)
-                    setPlaceholderMsg('')
-                    setAmountInput('')
-                } else {
-                    setResMsg(msg)
-                    setAmountInput('')
-                }
-            } catch (e) {
-                setResMsg(e.message)
-                setAmountInput('')
-            }
-        }
+        let res;
         const moreThen0 = parseFloat(amountInput) > 0;
         const creditLoaction = window.location.pathname
         const cashDepositLoaction = `${window.location.pathname}/deposit`
         const cashWithdrawLoaction = `${window.location.pathname}/withdraw`
+        const withdrawP2PLoaction = `${window.location.pathname}/withdrawP2P`
+        const handleAllData = async (name, path, update, ifis, msg) => {
+            try {
+                setOpenInput({
+                    isCredit: false,
+                    isDeposit: false,
+                    isWithdraw: false,
+                    isWithdrawP2P: false,
+                })
+                if (ifis) {
+                    res = await api.put(path, {[name]: update})
+                    setData({...data,accountDetails: res.data.accountDetails})
+                    setPlaceholderMsg('')
+                    setAmountInput('')
+                } else {
+                    setResMsg(msg)
+                    setTimeout(() => {
+                        setResMsg('')
+                    }, 2000);
+                    setAmountInput('')
+                }
+            } catch (e) {
+                setResMsg(e.message)
+                    setTimeout(() => {
+                        setResMsg('')
+                    }, 2000);
+                setAmountInput('')
+            }
+        }
+        const WithdrawP2P = async () => {
+            const isValid = toAccount !== '' 
+                && amountInput > 0
+                && amountInput <= data.accountDetails.cash + data.accountDetails.credit
+            try {
+                setOpenInput({
+                    isCredit: false,
+                    isDeposit: false,
+                    isWithdraw: false,
+                    isWithdrawP2P: false,
+                })
+                if (isValid){
+                    const res = await api.put(withdrawP2PLoaction, {
+                        "to": toAccount,
+                        "amount": amountInput,
+                    })
+                    setResMsg(`${res.data.message || res.data}`)
+                    setData({...data,accountDetails: res.data.fromAccount})
+                    setTimeout(() => {
+                        setResMsg('')
+                    }, 2000);
+                } else {
+                    setResMsg(`transaction is not valid`)
+                    setTimeout(() => {
+                        setResMsg('')
+                    }, 2000);
+                }
+            } catch (e) {
+                setResMsg(e.message)
+                    setTimeout(() => {
+                        setResMsg('')
+                    }, 2000);
+                setAmountInput('')
+            }
+        }
 
-        return placeholderMsg === 'request more credit' 
+
+        return placeholderMsg === 'requested credit amount' 
         ? handleAllData("credit",creditLoaction,amountInput,moreThen0,'credit requested amount must be more then 0')
-        : placeholderMsg === 'deposit money' 
+        : placeholderMsg === 'deposit money amount' 
         ? handleAllData("cash",cashDepositLoaction,amountInput,moreThen0,'deposit must be more then 0')
-        : placeholderMsg === 'withdraw money' 
+        : placeholderMsg === 'withdraw money amount' 
         ? handleAllData("cash",cashWithdrawLoaction,amountInput,moreThen0,'withdraw amount must be more then 0') 
+        : placeholderMsg === 'withdraw P2P amount' 
+        ? WithdrawP2P()
         : null
     }
+    // useEffect(() => {
+
+    // })
     const {_id, cash, credit} = data.accountDetails || ''
-    const {name} = data.user || ''
     return (
         <div>
             <Nav/>
             <div>
-                {<h1>hello {name}</h1>}
-                {<p>wellcome to your account number {_id}</p>}
+                {console.log(data)}
+                {<h1>hello {data?.user?.name || ''}</h1>}
+                {<p>wellcome to your account number {_id || ''}</p>}
                 <div>
-                    <h1>cash: {(new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cash))}</h1>
-                    <h1>credit: {(new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(credit))}</h1>
+                    <h1>cash: {(new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cash)) || ''}</h1>
+                    <h1>credit: {(new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(credit)) || ''}</h1>
                 </div>
             </div>
             <div>
@@ -97,7 +176,7 @@ function UserAccount() {
                 <button onClick={handleDeposite}>deposit money</button>
                 <button onClick={handleWithdraw}>withdraw money</button>
                 <button onClick={handleWithdrawP2P}>send money P2P</button>
-            {toggle && <div>
+            {[...Object.values(openInput)].includes(true) && <div>
                 <input 
                     type='number'
                     autoFocus
@@ -106,12 +185,11 @@ function UserAccount() {
                     placeholder={placeholderMsg}
                     />
                 <input 
-                    type='number'
-                    autoFocus
-                    disabled={true}
-                    value=''
-                    onChange={e => setAmountInput(e.target.value)}
-                    placeholder='to (WithdrawP2P)'
+                    type='string'
+                    disabled={!openInput['isWithdrawP2P']}
+                    value={toAccount}
+                    onChange={e => setToAccount(e.target.value)}
+                    placeholder='to (account ID number)'
                     />
                 <input 
                     type="submit" 

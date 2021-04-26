@@ -150,12 +150,58 @@ router.put('/api/user/:id/:account/withdrawP2P', async(req,res) => {
     let { id, account} = req.params
     let toAccount = req.body.to 
     let amount = req.body.amount
+    amount = parseFloat(amount)
     let fromUserDetails = await User.findOne({_id: id})
     let fromAccountDetails = await Account.findOne({_id: account})
     let toAccountDetails = await Account.findOne({_id: toAccount})
     console.log(fromUserDetails,fromAccountDetails,amount,toAccount)
+    let fromUserCash = parseFloat(fromAccountDetails.cash)
+    let fromUserCredit = parseFloat(fromAccountDetails.credit)
+    let fromUserTotal = parseFloat(fromAccountDetails.credit)
     try {
-        res.status(200).json(fromUserDetails,fromAccountDetails,amount,toAccountDetails)
+        const updatedSuccessed = async res => {
+            const updatedFromAccount = await Account.findOne({_id: account})
+            const updatedToAccount = await Account.findOne({_id: toAccountDetails._id})
+            return res.status(200).json({
+                "message": 'accounts updated',
+                "fromAccount":updatedFromAccount,
+                "toAccount":updatedToAccount
+            })
+        }
+        console.log({
+            'not valid': !fromUserDetails || !fromAccountDetails || !toAccountDetails || !amount,
+            'valid': amount <= fromUserCash && fromUserCash >= 0 && amount > 0,
+            'valid': (amount > fromUserCash && fromUserCash >= 0) && amount <= (fromUserCash + fromUserCredit) && amount > 0,
+            'valid': amount > fromUserCash && fromUserCash < 0 && amount <= fromUserCredit && fromUserCredit >= 0 && amount > 0
+        })
+        if (!fromUserDetails || !fromAccountDetails || !toAccountDetails || !amount){
+            res.status(404).send('request not valid')
+        }
+        if (amount <= fromUserCash && fromUserCash >= 0 && amount > 0){
+            const cashFrom = fromUserCash - amount
+            const cashTo = parseFloat(toAccountDetails.cash) + amount
+            await Account.findOneAndUpdate({_id: fromAccountDetails._id}, {"cash": cashFrom})
+            await Account.findOneAndUpdate({_id: toAccountDetails._id}, {"cash": cashTo})
+            updatedSuccessed(res)
+        }
+        else if ((amount > fromUserCash && fromUserCash >= 0) && amount <= (fromUserCash + fromUserCredit) && amount > 0){
+            const remind = amount - fromUserCash
+            const cashTo = parseFloat(toAccountDetails.cash) + amount 
+            let newCredit = fromUserCredit - remind
+            let newCash = 0 - remind
+            await Account.findOneAndUpdate({_id: fromAccountDetails._id}, {"cash": newCash, "credit": newCredit})
+            await Account.findOneAndUpdate({_id: toAccountDetails._id}, {"cash": cashTo})
+            updatedSuccessed(res)
+        } else if (amount > fromUserCash && fromUserCash < 0 && amount <= fromUserCredit && fromUserCredit >= 0 && amount > 0){
+            let cashFrom = fromUserCash - amount
+            const cashTo = parseFloat(toAccountDetails.cash) + amount 
+            let newCredit = fromUserCredit - amount
+            await Account.findOneAndUpdate({_id: fromAccountDetails._id}, {"cash": cashFrom, "credit": newCredit})
+            await Account.findOneAndUpdate({_id: toAccountDetails._id}, {"cash": cashTo})
+            updatedSuccessed(res)
+        } else {
+            res.status(200).json('sorry... is not a not valid transaction')
+        }
     } catch (error) {
         res.status(404).send(error)
     }
