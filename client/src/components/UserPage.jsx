@@ -2,7 +2,7 @@ import React, {useState,useEffect} from 'react'
 import Nav from './Nav'
 import api from  './../API/api'
 import './../styles/userpage.css'
-import {Link} from  'react-router-dom'
+import {Link,useParams} from  'react-router-dom'
 import axios from 'axios'
 const CancelToken = axios.CancelToken;
 const source = CancelToken.source();
@@ -12,13 +12,19 @@ function UserPage() {
     const [spinner,setSpinner] = useState(true)
     const [getMsg, setGetMsg] = useState(null)
     const [createAccountMsg, setCreateAccountMsg] = useState(null)
+    let { id } = useParams();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setGetMsg('data fetched')
                 setSpinner(true)
-                const {data} = await api.get(window.location.pathname, {cancelToken: source.token})
+                const pathname = 
+                    process.env.NODE_ENV === 'development' 
+                    ? window.location.pathname 
+                    : `/user/${id}`
+                console.log(id)
+                const {data} = await api.get(pathname, {cancelToken: source.token})
                 setUserData(data)
                 setSpinner(false)
                 setTimeout(() => {
