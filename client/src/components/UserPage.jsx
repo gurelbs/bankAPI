@@ -23,7 +23,7 @@ function UserPage() {
                     process.env.NODE_ENV === 'development' 
                     ? window.location.pathname 
                     : process.env.NODE_ENV === 'production'
-                    ? `/user/${id}`
+                    ? `/${id}`
                     : null
                 let res;
                 if (pathname){

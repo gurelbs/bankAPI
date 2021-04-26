@@ -207,11 +207,16 @@ router.put('/api/user/:id/:account/withdrawP2P', async(req,res) => {
     }
 })
 router.get('/api/user/:id', async (req,res) => {
-    const id = req.params.id
+    const {id} = req.params
+    console.log(id)
     try {
-        const user = await User.findOne({_id: id}).exec()
-        console.log(user)
-        res.status(200).json(user)
+        if (id){
+            const user = await User.findOne({_id: id}).exec()
+            console.log(user)
+            res.status(200).json(user)
+        } else {
+            res.status(500).json(`there is some error..`)
+        }
     } catch (e) {
         res.status(500).json(`there is some error ${e}`)
     }
