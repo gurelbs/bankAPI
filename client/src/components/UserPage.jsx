@@ -18,7 +18,9 @@ function UserPage() {
             try {
                 setGetMsg('data fetched')
                 setSpinner(true)
-                const {data} = await api.get(window.location.pathname, {cancelToken: source.token})
+                const pathname = process.env.NODE_ENV === 'development' ? window.location.pathname : '/account/create '
+                console.log(window.location.pathname,pathname)
+                const {data} = await api.get(pathname, {cancelToken: source.token})
                 setUserData(data)
                 setSpinner(false)
                 setTimeout(() => {
@@ -54,7 +56,6 @@ function UserPage() {
                 const {data} = await api.post('/account/create', {
                     owner: userData._id
                 })
-                console.log(data);
                 setCreateAccountMsg(data)
             } catch (e) {
                 console.log(e);
@@ -89,7 +90,7 @@ function UserPage() {
                 </div>
             <div className="create-section">
                 {createAccountMsg}
-                <button onClick={handleCreateAccount}>create new account</button>
+                <button onClick={() => handleCreateAccount()}>create new account</button>
             </div>
             </div>
         </div>
