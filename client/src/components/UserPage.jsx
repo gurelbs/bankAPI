@@ -53,8 +53,8 @@ function UserPage() {
         const fetchData = async () => {
             try {
                 const accountData = await api.post('/account/create', {owner: id})
-                console.log(accountData);
-                setCreateAccountMsg(accountData)
+                console.log(accountData.data);
+                setCreateAccountMsg(accountData.data)
             } catch (e) {
                 console.log(e);
                 setCreateAccountMsg('there is some problem with that...')
