@@ -11,22 +11,19 @@ function UserPage() {
     const [showList,setShowList] = useState(false)
     const [spinner,setSpinner] = useState(true)
     const [getMsg, setGetMsg] = useState(null)
-    const [accountsList, setaccountsList] = useState([])
     const [createAccountMsg, setCreateAccountMsg] = useState(null)
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                setGetMsg('')
                 setGetMsg('data fetched')
                 setSpinner(true)
                 const {data} = await api.get(window.location.pathname, {cancelToken: source.token})
-                setUserData({
-                    ...data,
-                    accounts: data.accounts || []
-                })
+                setUserData(data)
                 setSpinner(false)
-                setGetMsg('')
+                setTimeout(() => {
+                    setGetMsg('')
+                }, 1000);
             } catch (e) {
                 if (axios.isCancel(e)) {
                     setGetMsg('user not found..')
@@ -42,8 +39,8 @@ function UserPage() {
             }
         }
         fetchData()
-        return () => source.cancel()
-    },[accountsList])
+        // return () => source.cancel()
+    },[])
     const createUserData = () => {
         return (<div>
             {userData?.accounts?.length === 0 && <div>
@@ -68,9 +65,7 @@ function UserPage() {
     }
     const createList = () => {
         return (<div className="list">
-            <h3>here is your accounts list</h3>
-            <button onClick={() => setShowList(!showList)}>{showList ? 'hide accounts List' : 'show accounts List'}</button>
-            {showList && userData?.accounts?.map((account,i) => {
+            {userData?.accounts?.map((account,i) => {
             return <ul key={i}>
                 <Link to={`${window.location.pathname}/${account}`}>#{i+1}: {account}</Link>
             </ul> 
@@ -85,8 +80,12 @@ function UserPage() {
                     {getMsg}
                     {spinner && 'loading...'}
                     <h1>hello {userData.name}</h1>
-                    {!spinner && createUserData()}
-                    {!spinner &&  createList()}
+                    <h3>here is your accounts list</h3>
+                    {!spinner &&  createUserData()}
+                    <button onClick={() => setShowList(!showList)}>
+                        {showList ? 'hide accounts List' : 'show accounts List'}
+                    </button>
+                    {!spinner && showList && createList()}
                 </div>
             <div className="create-section">
                 {createAccountMsg}

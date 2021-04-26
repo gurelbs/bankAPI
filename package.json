@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/gurelbs/bankAPI#readme",
   "dependencies": {
+    "@sendgrid/mail": "7.4.2",
     "concurrently": "6.0.2",
     "cors": "2.8.5",
     "dotenv": "8.2.0",
