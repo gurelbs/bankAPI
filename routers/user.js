@@ -206,7 +206,8 @@ router.put('/api/user/:id/:account/withdrawP2P', async(req,res) => {
         res.status(404).send(error)
     }
 })
-router.get('/api/user/:id', async (req,res) => {
+let pathName = '/api/user/:id' || '/user/api/user/:id'
+router.get(pathName, async (req,res) => {
     const {id} = req.params
     console.log(id)
     try {
