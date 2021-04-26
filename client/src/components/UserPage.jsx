@@ -22,10 +22,12 @@ function UserPage() {
                 const pathname = 
                     process.env.NODE_ENV === 'development' 
                     ? window.location.pathname 
-                    : `/user/${id}`
-                console.log(id)
-                const {data} = await api.get(pathname, {cancelToken: source.token})
-                setUserData(data)
+                    : process.env.NODE_ENV === 'production'
+                    ? `/user/${id}`
+                    : null
+                    const {data} = await api.get(pathname, {cancelToken: source.token})
+                    setUserData(data)
+                    console.log(id,data)
                 setSpinner(false)
                 setTimeout(() => {
                     setGetMsg('')
@@ -58,12 +60,6 @@ function UserPage() {
         const fetchData = async () => {
             try {
                 const pathname = '/account/create'
-                    // process.env.NODE_ENV === 'development' 
-                    // ? window.location.pathname 
-                    // : process.env.NODE_ENV === 'production' 
-                    // ?  '/account/create'
-                    // : null
-
                 const {data} = await api.post(pathname, {owner: userData._id})
                 setCreateAccountMsg(data)
             } catch (e) {

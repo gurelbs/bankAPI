@@ -155,9 +155,6 @@ function UserAccount() {
         ? WithdrawP2P()
         : null
     }
-    // useEffect(() => {
-
-    // })
     const {_id, cash, credit} = data.accountDetails || ''
     return (
         <div>
