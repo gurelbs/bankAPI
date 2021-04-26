@@ -21,7 +21,6 @@ function UserPage() {
                 setSpinner(true)
                 let {data} = await api.get(window.location.pathname , {cancelToken: source.token})
                 setUserData(data.user)
-                console.log(id,data,window.location.pathname ,window.location)
                 setSpinner(false)
                 setTimeout(() => {
                     setGetMsg('')
@@ -77,8 +76,8 @@ function UserPage() {
             <div className="userpage-wrap">
                 <div>
                     {getMsg}
-                    {spinner && 'loading...'}
-                    <h1>hello {userData.name}</h1>
+                    {spinner && ' loading... '}
+                    <h1>hello {userData?.name}</h1>
                     <h3>here is your accounts list</h3>
                     {!spinner &&  createUserData()}
                     <button onClick={() => setShowList(!showList)}>

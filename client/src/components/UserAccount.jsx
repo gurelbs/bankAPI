@@ -19,9 +19,11 @@ function UserAccount() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const {data} = await api.get(window.location.pathname, {cancelToken: source.token})
+                const res = await api.get(window.location.pathname, {cancelToken: source.token})
                 console.log(data);
-                setData(data)
+                if(res){
+                    setData(res.data)
+                }
             } catch (thrown) {
                 if (axios.isCancel(thrown)) {
                     console.log('Request canceled', thrown.message);
@@ -161,7 +163,7 @@ function UserAccount() {
             <Nav/>
             <div>
                 {console.log(data)}
-                {<h1>hello {data?.user?.name || ''}</h1>}
+                {<h1>hello {data?.user?.name}</h1>}
                 {<p>wellcome to your account number {_id || ''}</p>}
                 <div>
                     <h1>cash: {(new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cash)) || ''}</h1>
