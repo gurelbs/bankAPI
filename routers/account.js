@@ -5,8 +5,8 @@ const express = require('express')
 const mongoose = require('mongoose')
 
 const router = new express.Router()
-
-router.post('/api/account/create', async (req,res) => {
+const pathName = '/api/account/create' || 'user/api/account/create'
+router.post(pathName, async (req,res) => {
     try {
         const newAcount = new Account(req.body)
         const user = await User.findById(req.body.owner)
